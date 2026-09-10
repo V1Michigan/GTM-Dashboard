@@ -4,8 +4,10 @@ RUN corepack enable
 WORKDIR /app
 
 FROM base AS deps
-COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile || pnpm install
+# pnpm-workspace.yaml carries the allowBuilds allowlist (esbuild et al). Without
+# it pnpm refuses the install with ERR_PNPM_IGNORED_BUILDS.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # `docker compose up web` targets this: next dev with the source bind-mounted.
 FROM deps AS dev

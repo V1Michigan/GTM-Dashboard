@@ -1,0 +1,23 @@
+# Never ship the host's node_modules into the image: they carry darwin-native
+# binaries (esbuild, tailwind oxide) that would clobber the linux ones the deps
+# stage installs. Also keeps the build context small.
+node_modules
+.next
+out
+build
+dist
+.turbo
+
+.env
+.env.*
+!.env.example
+
+.git
+.github
+supabase/.temp
+supabase/.branches
+coverage
+*.log
+.DS_Store
+.vscode
+.idea
