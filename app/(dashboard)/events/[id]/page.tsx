@@ -5,9 +5,10 @@ import { getEvent } from '@/lib/queries';
 import type { ImportRecord, ImportStatus } from '@/lib/types';
 import { EventHeader } from './EventHeader';
 import { AttendeeTable } from './AttendeeTable';
+import { fmtDateTime } from '@/lib/format';
 
 const fmtStamp = (v: string) =>
-  new Date(v).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  fmtDateTime(v);
 const title = (v: string) => v.replaceAll('_', ' ').replace(/^./, (c) => c.toUpperCase());
 
 const STATUS_TONE: Record<ImportStatus, 'accent' | 'neutral' | 'outline'> = {

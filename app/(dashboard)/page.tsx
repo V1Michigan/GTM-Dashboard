@@ -4,12 +4,13 @@ import { BarChart, type Bar } from './BarChart';
 import { StatCard, Tag } from '@/components/ui/primitives';
 import { overview } from '@/lib/queries';
 import type { ImportStatus } from '@/lib/types';
+import { fmtDateTime, fmtDayDate } from '@/lib/format';
 
 /** Date-only strings are parsed at local midnight so they never shift a day. */
 const day = (d: string) =>
-  new Date(`${d}T00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  fmtDayDate(d);
 const stamp = (t: string) =>
-  new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  fmtDateTime(t);
 const sentence = (s: string) => s.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
 
 const STATUS_TONE: Record<ImportStatus, 'accent' | 'outline' | 'neutral'> = {

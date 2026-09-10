@@ -9,7 +9,7 @@ import { guessMapping } from '@/lib/imports/mappings';
 import type { EventRow, ImportKind, SavedColumnMapping, Semester } from '@/lib/types';
 import type { UploadResult } from '@/app/api/imports/upload/route';
 import type { DryRunResult } from '@/app/api/imports/dry-run/route';
-import { KIND_LABEL } from '../ImportsTable';
+import { KIND_LABEL } from '@/lib/format';
 import { KindStep } from './steps/KindStep';
 import { UploadStep } from './steps/UploadStep';
 import { MapStep } from './steps/MapStep';

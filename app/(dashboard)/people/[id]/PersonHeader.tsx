@@ -10,11 +10,10 @@ import type { PeopleDirectoryRow, Person } from '@/lib/types';
 import { setMember, updateField } from '../actions';
 import { MergeDialog, type MergeSummary } from './MergeDialog';
 import { DeleteDialog, type Cascades } from './DeleteDialog';
+import { fmtDateLong } from '@/lib/format';
 
 const TODAY = new Date().toISOString().slice(0, 10);
-const fmt = (v: string | null) =>
-  v ? new Date(v.length === 10 ? `${v}T00:00:00` : v)
-    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
+const fmt = fmtDateLong;
 
 const TERMS = [
   { value: 'winter', label: 'Winter' }, { value: 'spring', label: 'Spring' },

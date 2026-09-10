@@ -6,14 +6,13 @@ import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Seg } from '@/components/ui/Seg';
 import { Empty, Tag } from '@/components/ui/primitives';
 import type { EventAttendee } from '@/lib/queries';
+import { fmtTime } from '@/lib/format';
 
 type Filter = 'all' | 'registered' | 'checked-in' | 'walk-ins' | 'no-shows';
 
 const MUTED = 'text-neutral-600';
 const name = (a: EventAttendee) =>
   [a.person?.first_name, a.person?.last_name].filter(Boolean).join(' ') || '(no name)';
-const fmtTime = (v: string | null) =>
-  v ? new Date(v).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null;
 
 const COLUMNS: ColumnDef<EventAttendee, unknown>[] = [
   { id: 'name', header: 'Name', accessorFn: name },

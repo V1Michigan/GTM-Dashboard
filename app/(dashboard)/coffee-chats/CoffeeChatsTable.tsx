@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Empty } from '@/components/ui/primitives';
 import { Seg } from '@/components/ui/Seg';
+import { fmtDate } from '@/lib/format';
 
 export interface ChatRow {
   id: string;
@@ -31,7 +32,7 @@ function startOf(range: Range, today: string) {
 }
 
 const shortDate = (d: string) =>
-  new Date(`${d}T00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  fmtDate(d);
 
 const columns: ColumnDef<ChatRow, unknown>[] = [
   {

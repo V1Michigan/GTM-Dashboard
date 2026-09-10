@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ChannelsTable } from './ChannelsTable';
 import { PageHeader, StatCard } from '@/components/ui/primitives';
 import { overview, slackOverview } from '@/lib/queries';
+import { fmtDateTime } from '@/lib/format';
 
 export default async function SlackPage() {
   const [{ channels, unmatched, notInSlack }, { stats }] = await Promise.all([
@@ -19,9 +20,7 @@ export default async function SlackPage() {
         title="Slack"
         subtitle={
           `Public channels only · ${joined} of ${channels.length} joined by the bot`
-          + (lastSync ? ` · last sync ${new Date(lastSync).toLocaleString('en-US', {
-            month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-          })}` : ' · never synced')
+          + (lastSync ? ` · last sync ${fmtDateTime(lastSync)}` : ' · never synced')
         }
       />
 

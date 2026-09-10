@@ -4,6 +4,7 @@ import { ExportButtons } from '@/components/ExportButtons';
 import { PageHeader, Tag } from '@/components/ui/primitives';
 import { requireAdmin } from '@/lib/auth';
 import { appUsers, savedMappings } from '@/lib/queries';
+import { fmtDateTime } from '@/lib/format';
 
 const NAV = [
   ['users', 'Users & roles'], ['mappings', 'Column mappings'],
@@ -11,7 +12,7 @@ const NAV = [
 ] as const;
 
 const shortDate = (t: string) =>
-  new Date(t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  fmtDateTime(t);
 
 /** Secrets are read server-side and only their presence ever reaches the page. */
 const present = (v: string | undefined) => (v ? 'set' : 'missing');

@@ -4,7 +4,8 @@ import { DownloadSimple } from '@phosphor-icons/react/dist/ssr';
 import { revalidate, tags } from '@/lib/cache';
 import { getImport } from '@/lib/queries';
 import { createServerClient } from '@/lib/supabase/server';
-import { KIND_LABEL, StatusTag, fmtDateTime } from '../ImportsTable';
+import { StatusTag } from '../ImportsTable';
+import { KIND_LABEL, fmtDateTime } from '@/lib/format';
 import { RowsTable, type ImportRowWithPerson } from './RowsTable';
 
 function Count({ label, value, accent }: { label: string; value: React.ReactNode; accent?: boolean }) {

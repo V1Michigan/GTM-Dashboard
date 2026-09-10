@@ -1,4 +1,4 @@
-.PHONY: dev reset test typecheck seed tunnel
+.PHONY: dev reset clear test typecheck seed tunnel seed-admin
 
 # Whichever container the local Supabase stack is running Postgres in.
 DB := $(shell docker ps --filter name=supabase_db_ --format '{{.Names}}' | head -1)
@@ -18,6 +18,12 @@ seed-admin:     ## Point the seeded admin row at $SEED_ADMIN_EMAIL (spec §9: ne
 	      on conflict (email) do update set role = 'admin'" \
 	  -c "delete from app_users where email = 'seed-admin@umich.edu' and email <> '$$SEED_ADMIN_EMAIL'"
 	@echo "admin: $$SEED_ADMIN_EMAIL"
+
+clear:          ## Empty every data table, keeping the admin allowlist (for a clean import run)
+	@test -n "$(DB)" || { echo "supabase is not running: make dev"; exit 1; }
+	@docker exec -i $(DB) psql -qU postgres -d postgres -v ON_ERROR_STOP=1 < scripts/clear-data.sql
+	@docker exec -i $(DB) psql -qtAU postgres -d postgres -c \
+	  "select 'people='||(select count(*) from people)||'  events='||(select count(*) from events)||'  imports='||(select count(*) from imports)||'  app_users='||(select count(*) from app_users)"
 
 seed:           ## Regenerate supabase/seed.sql (deterministic; commit the result)
 	pnpm seed:generate

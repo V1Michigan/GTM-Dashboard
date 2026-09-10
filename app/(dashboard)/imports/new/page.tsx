@@ -1,6 +1,6 @@
 import { eventOptions, savedMappings } from '@/lib/queries';
 import type { ImportKind } from '@/lib/types';
-import { KIND_LABEL } from '../ImportsTable';
+import { KIND_LABEL } from '@/lib/format';
 import { Wizard } from './Wizard';
 
 export default async function NewImportPage(

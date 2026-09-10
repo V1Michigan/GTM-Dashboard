@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { Combobox } from '@/components/ui/Combobox';
 import { Field } from '@/components/ui/primitives';
 import type { ImportKind, Semester } from '@/lib/types';
-import { KIND_LABEL } from '../../ImportsTable';
+import { KIND_LABEL } from '@/lib/format';
 import type { WizardEvent } from '../Wizard';
 
 const DESCRIPTION: Record<ImportKind, string> = {

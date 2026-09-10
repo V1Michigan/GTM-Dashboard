@@ -5,11 +5,9 @@ import { CalendarBlank } from '@phosphor-icons/react/dist/ssr';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Empty, Tag } from '@/components/ui/primitives';
 import type { EventListRow } from '@/lib/queries';
+import { fmtDayDateLong } from '@/lib/format';
 
-const fmtDate = (v: string) =>
-  new Date(`${v}T00:00:00`).toLocaleDateString('en-US', {
-    weekday: 'short', month: 'short', day: 'numeric', year: 'numeric',
-  });
+const fmtDate = fmtDayDateLong;
 
 /** 0 reads as "nothing imported yet" on an upcoming event, so it renders muted. */
 const count = (n: number) => n ? <>{n}</> : <span className="text-neutral-600">—</span>;

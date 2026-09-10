@@ -6,14 +6,12 @@ import { getPerson, peopleDirectory, type PersonDetail } from '@/lib/queries';
 import type { Json } from '@/lib/types';
 import { addEmail, removeEmail, setPrimaryEmail } from '../actions';
 import { PersonHeader } from './PersonHeader';
+import { fmtDateLong, fmtDateTime, fmtTime as fmtTimeShared } from '@/lib/format';
 
-const fmtDate = (v: string | null) =>
-  v ? new Date(v.length === 10 ? `${v}T00:00:00` : v)
-    .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : null;
-const fmtTime = (v: string | null) =>
-  v ? new Date(v).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null;
+const fmtDate = fmtDateLong;
+const fmtTime = fmtTimeShared;
 const fmtStamp = (v: string) =>
-  new Date(v).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  fmtDateTime(v);
 const title = (v: string) => v.replaceAll('_', ' ').replace(/^./, (c) => c.toUpperCase());
 const show = (v: Json) => v === null || v === undefined ? 'null' : typeof v === 'object' ? JSON.stringify(v) : String(v);
 

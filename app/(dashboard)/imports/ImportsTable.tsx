@@ -3,27 +3,10 @@ import { useMemo, useState } from 'react';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Seg } from '@/components/ui/Seg';
 import { Empty, Tag } from '@/components/ui/primitives';
-import type { EventRow, ImportKind, ImportRecord, ImportStatus } from '@/lib/types';
+import type { EventRow, ImportRecord, ImportStatus } from '@/lib/types';
+import { KIND_LABEL, fmtDateTime } from '@/lib/format';
 
 export type ImportListRow = ImportRecord & { event: EventRow | null };
-
-export const KIND_LABEL: Record<ImportKind, string> = {
-  event_registration: 'Event registration',
-  event_checkin: 'Event check-in',
-  interest_form: 'Interest form',
-  community_interest_form: 'Community interest form',
-  product_studio_application: 'PS application',
-  coffee_chat: 'Coffee chat',
-  members_list: 'Members list',
-  people_bulk: 'People bulk',
-};
-
-/** Everything renders in the club's timezone so the server and client agree (spec §4.9). */
-const dateTime = new Intl.DateTimeFormat('en-US', {
-  month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
-  hour12: false, timeZone: 'America/Detroit',
-});
-export const fmtDateTime = (iso: string | null) => (iso ? dateTime.format(new Date(iso)) : '—');
 
 const STATUS: Record<ImportStatus, { label: string; tone: 'accent' | 'neutral' | 'outline' }> = {
   uploaded: { label: 'Draft', tone: 'neutral' },

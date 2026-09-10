@@ -4,6 +4,7 @@ import { requireSession } from '@/lib/auth';
 import { myCoffeeChats, openReviewCount, peopleDirectoryLive } from '@/lib/queries';
 import { LogForm, type RecentChat } from '@/app/(dashboard)/coffee-chats/LogForm';
 import type { PeopleDirectoryRow } from '@/lib/types';
+import { fmtDate } from '@/lib/format';
 
 /**
  * The only page the `member` role may open, so it lives outside `(dashboard)`
@@ -36,8 +37,7 @@ export default async function LogCoffeeChatPage() {
       name: [c.person?.first_name, c.person?.last_name].filter(Boolean).join(' ') || 'Unknown',
       when: hours < 24
         ? `${Math.max(1, Math.round(hours))}h ago`
-        : new Date(`${c.chatted_on ?? c.created_at.slice(0, 10)}T00:00`)
-          .toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        : fmtDate(c.chatted_on ?? c.created_at.slice(0, 10)),
       deletable: hours < 24,
     };
   });
