@@ -32,6 +32,21 @@ export async function getSession(): Promise<Session | null> {
   const { data, error } = await supabase.auth.getClaims();
   const claims = data?.claims;
   if (error || !claims?.email) return null;
+
+  // Same fallback as middleware: if the access token hook is not enabled on this
+  // project, the claim is absent and we fall back to the table rather than
+  // silently demoting an admin. See middleware.ts.
+  if (claims.app_role === undefined) {
+    const { data: row } = await supabase
+      .from('app_users').select('role, person_id').eq('email', claims.email).maybeSingle();
+    return {
+      email: claims.email,
+      role: (row?.role as AppRole | undefined) ?? 'member',
+      personId: (row?.person_id as string | null | undefined) ?? null,
+      userId: (claims.sub as string | undefined) ?? null,
+    };
+  }
+
   return {
     email: claims.email,
     role: claims.app_role === 'admin' ? 'admin' : 'member',

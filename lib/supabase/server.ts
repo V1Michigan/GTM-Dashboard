@@ -6,8 +6,8 @@ import { createClient } from '@supabase/supabase-js';
  * DEV_BYPASS_AUTH (spec §9) injects a fixed admin session for faster local loops.
  * A bypassed session carries no user cookie, so RLS would deny every read and the
  * dashboard would render empty — the flag has to reach past RLS to be worth
- * anything. It is refused in a production build (`next.config.ts`) and re-checked
- * here, so this branch cannot exist in a deployed app.
+ * anything. The branch is gated on NODE_ENV !== 'production', so it stays off
+ * under a production runtime even when the flag is set.
  */
 const DEV_BYPASS =
   process.env.NODE_ENV !== 'production' && process.env.DEV_BYPASS_AUTH === 'true';

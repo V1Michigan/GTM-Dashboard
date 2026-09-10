@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { createServerClient } from '@/lib/supabase/server';
 
 /**
- * Google OAuth landing. The domain/allowlist trigger on auth.users (spec §4.7)
- * rejects disallowed accounts, which surfaces here as an exchange error; send
- * that to /login so the rejected-account notice can name the address.
+ * Landing point for emailed auth links (password recovery, and email
+ * confirmation if it is ever turned on). Sign-in and sign-up themselves are
+ * handled inline by the login form and never come through here. An exchange
+ * failure is sent to /login so the notice can explain it.
  */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);

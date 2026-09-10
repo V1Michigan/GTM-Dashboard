@@ -39,7 +39,18 @@ export async function middleware(request: NextRequest) {
   const { data, error } = await supabase.auth.getClaims();
   if (error || !data?.claims) return NextResponse.redirect(new URL('/login', request.url));
 
-  if (data.claims.app_role !== 'admin') {
+  // Fallback for a project where the hook is not enabled yet (config.toml only
+  // configures the local stack; hosted Supabase enables it under Auth > Hooks).
+  // Without this an absent claim would read as "not admin" and lock every admin
+  // out of their own dashboard. Costs one query only while the hook is missing.
+  let role = data.claims.app_role as string | undefined;
+  if (role === undefined) {
+    const { data: row } = await supabase
+      .from('app_users').select('role').eq('email', data.claims.email!).maybeSingle();
+    role = row?.role ?? 'member';
+  }
+
+  if (role !== 'admin') {
     if (pathname === MEMBER_PATH) return response;
     // Members get 404, not a redirect: the other routes do not exist for them.
     return pathname === '/'

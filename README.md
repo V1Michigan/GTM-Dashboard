@@ -14,13 +14,14 @@ make dev                    # or: pnpm dev
 
 `make reset` re-applies every migration and reseeds. `make tunnel` prints a
 public URL for the Slack and Tally webhook routes during development.
-`DEV_BYPASS_AUTH=true` injects a fixed admin session; it is refused in a
-production build (`next.config.ts`).
+`DEV_BYPASS_AUTH=true` injects a fixed admin session. It is gated on
+`NODE_ENV !== 'production'`, so setting it has no effect under a production
+runtime.
 
 ## Layout
 
 ```
-app/(auth)/login          Google sign-in, and the rejected-account notice
+app/(auth)/login          email + password sign-in, and the rejected-account notice
 app/(dashboard)           every admin page; middleware 404s the `member` role here
 app/api                   imports, export, slack events, webhook stubs
 lib/supabase              server (RLS) / browser / service-role clients
@@ -52,6 +53,14 @@ fixtures/csv              one sample file per import kind
 Nocturne, copied verbatim to `app/nocturne.css` from the handoff. It is the
 canonical token source; `app/globals.css` maps those tokens onto Tailwind v4 so
 utilities and component classes resolve to the same values.
+
+**Deviation from spec §5, recorded here as the spec asks.** The spec fixes
+Google as the only provider with email/password disabled. This build uses email
++ password instead, at the owner's direction. The access rule is unchanged and
+is still enforced where it always was: the `auth.users` trigger in migration
+0012 refuses any address that is not `@umich.edu` **and** either on `app_users`
+or attached to a person with `is_v1_member = true`. Switching provider does not
+widen who can get in. Email confirmations are off, so no SMTP is required.
 
 **One deviation from spec §2, recorded here as the spec asks.** The spec names
 shadcn/ui. Nocturne already ships `.btn`, `.card`, `.table`, `.tag`, `.input`,

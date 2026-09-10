@@ -53,9 +53,12 @@ refresh_token_reuse_interval = 10
 enable_signup = true   # Google sign-ups; email/password is disabled below (spec §5)
 enable_anonymous_sign_ins = false
 
-# Spec §5: Google is the only way in. Email/password MUST stay disabled.
+# Email + password is the only way in. The @umich.edu allowlist trigger on
+# auth.users (migration 0012) is what actually gates access, not the provider.
+# Confirmations are off so an allowlisted account works without SMTP; the
+# trigger already refuses anyone who is not an admin or a current V1 member.
 [auth.email]
-enable_signup = false
+enable_signup = true
 enable_confirmations = false
 double_confirm_changes = false
 
@@ -64,11 +67,7 @@ enable_signup = false
 enable_confirmations = false
 
 [auth.external.google]
-enabled = true
-client_id = "env(GOOGLE_CLIENT_ID)"
-secret = "env(GOOGLE_CLIENT_SECRET)"
-redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
-skip_nonce_check = false
+enabled = false
 
 [analytics]
 enabled = false
