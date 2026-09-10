@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -25,9 +26,7 @@ export function Sidebar(
   return (
     <aside className="flex w-[220px] shrink-0 flex-col border-r border-divider bg-surface px-[14px] pb-[18px] pt-[22px]">
       <div className="flex items-center gap-[10px] px-[10px] pb-[22px]">
-        <div className="grid size-[26px] place-items-center rounded-[7px] border border-accent text-[12px] font-semibold text-accent">
-          V1
-        </div>
+        <Image src="/v1-logo.png" alt="V1" width={26} height={26} priority className="size-[26px]" />
         <div className="text-[15px] font-medium tracking-[-0.01em]">GTM Dashboard</div>
       </div>
 

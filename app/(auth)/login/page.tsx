@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { AuthForm } from './AuthForm';
 
 /**
@@ -14,9 +15,7 @@ export default async function LoginPage(
     <main className="grid min-h-screen place-items-center px-6">
       <div className="flex w-[360px] flex-col gap-[22px]">
         <div className="flex items-center gap-[10px]">
-          <div className="grid size-[30px] place-items-center rounded-lg border border-accent text-[13px] font-semibold text-accent">
-            V1
-          </div>
+          <Image src="/v1-logo.png" alt="V1" width={30} height={30} priority className="size-[30px]" />
           <span className="text-[16px] font-medium">GTM Dashboard</span>
         </div>
 
