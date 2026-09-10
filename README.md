@@ -1,5 +1,7 @@
 # V1 GTM Dashboard
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fa27031a-bbdb-43e5-b742-ef26138c386a/deploy-status)](https://app.netlify.com/projects/v1gtmdashboard/deploys)
+
 Member and event tracking for the V1 Michigan community team. Implements
 `v1-gtm-dashboard-architecture.md` §1–10; §11 is deliberately not built.
 
@@ -14,9 +16,10 @@ make dev                    # or: pnpm dev
 
 `make reset` re-applies every migration and reseeds. `make tunnel` prints a
 public URL for the Slack and Tally webhook routes during development.
-`DEV_BYPASS_AUTH=true` injects a fixed admin session. It is gated on
-`NODE_ENV !== 'production'`, so setting it has no effect under a production
-runtime.
+`DEV_BYPASS_AUTH=true` injects a fixed admin session and runs server reads
+through the service-role key, bypassing RLS. **It is honoured in every
+environment, production included** — while it is on, anyone who can reach the
+site has full admin access without signing in. See `lib/flags.ts`.
 
 ## Layout
 
@@ -56,7 +59,11 @@ utilities and component classes resolve to the same values.
 
 **Deviation from spec §5, recorded here as the spec asks.** The spec fixes
 Google as the only provider with email/password disabled. This build uses email
-+ password instead, at the owner's direction. The access rule is unchanged and
++ password instead, at the owner's direction, with **no self-serve sign-up** —
+an admin provisions each account in `/settings` and hands over a one-time
+password. Creating an auth user needs the Admin API, so `provisionUser()` is the
+one Server Action that touches the service-role client; it is guarded by
+`requireAdmin()` and writes nothing but `app_users` and `auth.users`. The access rule is unchanged and
 is still enforced where it always was: the `auth.users` trigger in migration
 0012 refuses any address that is not `@umich.edu` **and** either on `app_users`
 or attached to a person with `is_v1_member = true`. Switching provider does not

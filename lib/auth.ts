@@ -1,9 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createServerClient } from '@/lib/supabase/server';
+import { AUTH_BYPASS } from '@/lib/flags';
 import type { AppRole } from '@/lib/types';
-
-export const DEV_BYPASS =
-  process.env.NODE_ENV !== 'production' && process.env.DEV_BYPASS_AUTH === 'true';
 
 export interface Session {
   email: string;
@@ -22,7 +20,7 @@ export interface Session {
  * and UI only, never the authorization decision.
  */
 export async function getSession(): Promise<Session | null> {
-  if (DEV_BYPASS) {
+  if (AUTH_BYPASS) {
     return {
       email: process.env.SEED_ADMIN_EMAIL ?? 'dev@umich.edu',
       role: 'admin', personId: null, userId: null,

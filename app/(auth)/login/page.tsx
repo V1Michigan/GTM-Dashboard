@@ -37,9 +37,8 @@ export default async function LoginPage(
         <AuthForm />
 
         <p className="m-0 text-[12px] text-neutral-600">
-          First time? Use <span className="text-neutral-400">Create account</span> with the
-          umich.edu address an admin added. Members are routed to the coffee-chat logger;
-          admins land on the overview.
+          Accounts are created by a V1 admin. If you don&rsquo;t have one, ask an admin to add
+          you. Members are routed to the coffee-chat logger; admins land on the overview.
         </p>
       </div>
     </main>

@@ -50,13 +50,20 @@ additional_redirect_urls = ["http://localhost:3000", "http://127.0.0.1:3000"]
 jwt_expiry = 3600
 enable_refresh_token_rotation = true
 refresh_token_reuse_interval = 10
-enable_signup = true   # Google sign-ups; email/password is disabled below (spec §5)
+enable_signup = false  # no self-serve sign-up; admins provision accounts in /settings
 enable_anonymous_sign_ins = false
 
-# Email + password is the only way in. The @umich.edu allowlist trigger on
-# auth.users (migration 0012) is what actually gates access, not the provider.
-# Confirmations are off so an allowlisted account works without SMTP; the
-# trigger already refuses anyone who is not an admin or a current V1 member.
+# Email + password is the only way in, and accounts are provisioned by an admin
+# in /settings — never self-serve.
+#
+# The knob that closes sign-up is `[auth] enable_signup = false` above: it blocks
+# the public /auth/v1/signup endpoint while leaving password sign-in working, and
+# the Admin API used by provisionUser() is not subject to it. Do NOT set
+# `[auth.email] enable_signup = false` to try to achieve this — that disables the
+# email provider outright and refuses every LOGIN as well.
+#
+# The @umich.edu allowlist trigger on auth.users (migration 0012) backs this up.
+# Confirmations are off so a provisioned account can sign in without SMTP.
 [auth.email]
 enable_signup = true
 enable_confirmations = false

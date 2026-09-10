@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
+import { AUTH_BYPASS } from '@/lib/flags';
 
 const PUBLIC = ['/login', '/auth/callback', '/api/webhooks', '/api/slack'];
 /** The only path a `member` may open. RLS is the enforcement; this is the routing. */
@@ -10,7 +11,7 @@ export async function middleware(request: NextRequest) {
   if (PUBLIC.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return NextResponse.next();
 
   const response = NextResponse.next({ request });
-  if (process.env.NODE_ENV !== 'production' && process.env.DEV_BYPASS_AUTH === 'true') return response;
+  if (AUTH_BYPASS) return response;
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

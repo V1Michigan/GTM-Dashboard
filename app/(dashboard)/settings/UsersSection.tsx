@@ -2,7 +2,7 @@
 import { useState, useTransition } from 'react';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Empty, Tag } from '@/components/ui/primitives';
-import { addAdmin, setRole } from './actions';
+import { provisionUser, setRole } from './actions';
 
 export interface UserRow {
   email: string;
@@ -14,7 +14,9 @@ export interface UserRow {
 
 export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
   const [email, setEmail] = useState('');
+  const [role, setNewRole] = useState<'admin' | 'member'>('member');
   const [error, setError] = useState<string | null>(null);
+  const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
   const [pending, start] = useTransition();
 
   const run = (fn: () => Promise<string | null>) =>
@@ -63,30 +65,60 @@ export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
       <div>
         <h2 className="mb-[2px] text-[17px]">Users &amp; roles</h2>
         <p className="m-0 text-[13px] text-neutral-400">
-          Admins see everything. Members are created automatically on first sign-in and can only
-          log coffee chats.
+          There is no self sign-up. Create an account here and pass the one-time password to the
+          person. Admins see everything; members can only log coffee chats.
         </p>
       </div>
 
       <form
-        className="flex gap-2"
+        className="flex flex-wrap items-end gap-2"
         onSubmit={(e) => {
           e.preventDefault();
-          run(async () => {
-            const message = await addAdmin(email);
-            if (!message) setEmail('');
-            return message;
+          setCreated(null);
+          start(async () => {
+            const result = await provisionUser({ email, role });
+            if ('error' in result) { setError(result.error); return; }
+            setError(null);
+            setCreated({ email, password: result.password });
+            setEmail('');
           });
         }}
       >
-        <input
-          className="input w-[300px]" type="email" placeholder="uniqname@umich.edu"
-          aria-label="Add an admin by email" value={email} onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="field mb-0">
+          <label htmlFor="new-user">umich.edu email</label>
+          <input
+            id="new-user" className="input w-[300px]" type="email" required
+            placeholder="uniqname@umich.edu"
+            value={email} onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+        <div className="field mb-0">
+          <label htmlFor="new-role">Role</label>
+          <select
+            id="new-role" className="input w-[140px]" value={role}
+            onChange={(e) => setNewRole(e.target.value as 'admin' | 'member')}
+          >
+            <option value="member">member</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
         <button type="submit" className="btn btn-primary" disabled={pending || email === ''}>
-          Add admin
+          {pending ? 'Creating…' : 'Create account'}
         </button>
       </form>
+
+      {created && (
+        <div className="notice flex flex-col gap-2">
+          <div className="text-[13px] font-medium">Account created for {created.email}</div>
+          <div className="text-[12.5px] text-neutral-400">
+            Give them this one-time password. It is not stored anywhere and cannot be shown again —
+            copy it now.
+          </div>
+          <code className="rounded-sm bg-[var(--color-bg)] px-3 py-2 font-mono text-[13px] text-accent-300">
+            {created.password}
+          </code>
+        </div>
+      )}
 
       {error && <div className="notice">{error}</div>}
 
