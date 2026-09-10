@@ -39,7 +39,9 @@ export type CanonicalField =
   | 'submission_id'
   | 'programs'
   | 'member_email'
-  | 'chatted_on';
+  | 'chatted_on'
+  | 'slack_user_id'
+  | 'slack_status';
 
 export interface ColumnSpec {
   field: CanonicalField;
@@ -216,6 +218,20 @@ export const DEFAULT_MAPPINGS: Record<
       { field: 'member_email', headers: ['member_email', 'Member Email'], required: true },
       { field: 'chatted_on', headers: ['chatted_on', 'Date'], transform: dateOnly },
       { field: 'notes', headers: ['notes', 'Notes'] },
+    ],
+  },
+  /**
+   * Slack's workspace member export (Admin > Members > Export). One row per
+   * account, including bots and deactivated users — apply_import filters those
+   * out, since §8.4 syncs only non-bot, non-deleted users.
+   */
+  slack_members: {
+    source: 'slack',
+    columns: [
+      { field: 'email', headers: ['email', 'Email'], required: true },
+      { field: 'slack_user_id', headers: ['userid', 'user_id'], required: true },
+      { field: 'slack_status', headers: ['status'] },
+      { field: 'name', headers: ['fullname', 'displayname', 'Full Name'] },
     ],
   },
   people_bulk: {

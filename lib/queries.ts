@@ -1,4 +1,5 @@
 import { tags, withCache } from '@/lib/cache';
+import { fetchAll } from '@/lib/paginate';
 import { createServerClient } from '@/lib/supabase/server';
 import type {
   AppUser, CoffeeChat, EventAttendance, EventRow, EventStats, FieldChange, FormSubmission,
@@ -26,9 +27,8 @@ export interface PersonListRow extends Person {
 
 export const listPeople = () =>
   withCache(['people-list'], [tags.people], async (db) => {
-    const { data, error } = await db.from('people_list').select('*');
-    if (error) throw error;
-    return (data ?? []) as PersonListRow[];
+    return fetchAll<PersonListRow>((f, t) =>
+      db.from('people_list').select('*').order('id').range(f, t));
   });
 
 export interface PersonDetail {
@@ -84,16 +84,15 @@ export const getPerson = (id: string) =>
 /** Name + primary email only. This is the one people view the `member` role may read. */
 export const peopleDirectory = () =>
   withCache(['people-directory'], [tags.people], async (db) => {
-    const { data, error } = await db.from('people_directory').select('*').order('last_name');
-    if (error) throw error;
-    return (data ?? []) as PeopleDirectoryRow[];
+    return fetchAll<PeopleDirectoryRow>((f, t) =>
+      db.from('people_directory').select('*').order('last_name').order('id').range(f, t));
   });
 
 /** Uncached: called from the member page, which must not share a cache entry. */
 export async function peopleDirectoryLive(): Promise<PeopleDirectoryRow[]> {
   const db = await createServerClient();
-  const { data } = await db.from('people_directory').select('*').order('last_name');
-  return (data ?? []) as PeopleDirectoryRow[];
+  return fetchAll<PeopleDirectoryRow>((f, t) =>
+    db.from('people_directory').select('*').order('last_name').order('id').range(f, t));
 }
 
 /* ── Events ───────────────────────────────────────────────────────────── */
@@ -114,24 +113,25 @@ export interface EventAttendee extends EventAttendance {
   person: Pick<Person, 'id' | 'first_name' | 'last_name' | 'is_v1_member'> & { primary_email: string | null };
 }
 
+type Join = EventAttendance & {
+  person: Person & { person_emails: { email: string; is_primary: boolean }[] };
+};
+
 export const getEvent = (id: string) =>
   withCache(['event', id], [tags.event(id), tags.events], async (db) => {
     const [event, stats, attendees, imports] = await Promise.all([
       db.from('events').select('*').eq('id', id).maybeSingle(),
       db.from('event_stats').select('*').eq('event_id', id).maybeSingle(),
-      db.from('event_attendance')
+      fetchAll<Join>((f, t) => db.from('event_attendance')
         .select('*, person:people(id,first_name,last_name,is_v1_member,person_emails(email,is_primary))')
-        .eq('event_id', id),
+        .eq('event_id', id).order('id').range(f, t)),
       db.from('imports').select('*').eq('event_id', id).order('created_at', { ascending: false }),
     ]);
     if (!event.data) return null;
-    type Join = EventAttendance & {
-      person: Person & { person_emails: { email: string; is_primary: boolean }[] };
-    };
     return {
       event: event.data as EventRow,
       stats: (stats.data ?? null) as EventStats | null,
-      attendees: ((attendees.data ?? []) as Join[]).map((r) => ({
+      attendees: attendees.map((r) => ({
         ...r,
         person: {
           ...r.person,
@@ -166,15 +166,16 @@ export const getImport = (id: string) =>
   withCache(['import', id], [tags.imports, tags.review], async (db) => {
     const [record, rows, review] = await Promise.all([
       db.from('imports').select('*, event:events(*)').eq('id', id).maybeSingle(),
-      db.from('import_rows').select('*, person:people(id,first_name,last_name)')
-        .eq('import_id', id).order('row_index'),
+      fetchAll<ImportRowRecord & { person: Person | null }>((f, t) =>
+        db.from('import_rows').select('*, person:people(id,first_name,last_name)')
+          .eq('import_id', id).order('row_index').range(f, t)),
       db.from('review_items').select('id, import_rows!inner(import_id)')
         .eq('status', 'open').eq('import_rows.import_id', id),
     ]);
     if (!record.data) return null;
     return {
       record: record.data as ImportRecord & { event: EventRow | null },
-      rows: (rows.data ?? []) as (ImportRowRecord & { person: Person | null })[],
+      rows,
       openReviewCount: review.data?.length ?? 0,
     };
   });
@@ -196,10 +197,8 @@ export const openReviewCount = () =>
 
 export const listReviewItems = () =>
   withCache(['review-items'], [tags.review], async (db) => {
-    const { data, error } = await db.from('review_items').select('*')
-      .eq('status', 'open').order('created_at');
-    if (error) throw error;
-    return (data ?? []) as ReviewItem[];
+    return fetchAll<ReviewItem>((f, t) => db.from('review_items').select('*')
+      .eq('status', 'open').order('created_at').order('id').range(f, t));
   });
 
 /* ── Coffee chats ─────────────────────────────────────────────────────── */
@@ -214,10 +213,8 @@ const CHAT_SELECT =
 
 export const listCoffeeChats = () =>
   withCache(['coffee-chats'], [tags.coffeeChats], async (db) => {
-    const { data, error } = await db.from('coffee_chats').select(CHAT_SELECT)
-      .order('chatted_on', { ascending: false });
-    if (error) throw error;
-    return (data ?? []) as unknown as CoffeeChatRow[];
+    return fetchAll<CoffeeChatRow>((f, t) => db.from('coffee_chats').select(CHAT_SELECT)
+      .order('chatted_on', { ascending: false }).order('id').range(f, t)) as Promise<CoffeeChatRow[]>;
   });
 
 /** Uncached on purpose: RLS scopes this per member, so it must not be shared. */

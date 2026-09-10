@@ -16,7 +16,8 @@ export type ImportSource =
   | 'luma_csv' | 'tally_csv' | 'manual_csv' | 'tally_webhook' | 'luma_webhook' | 'slack' | 'manual';
 export type ImportKind =
   | 'event_registration' | 'event_checkin' | 'interest_form' | 'community_interest_form'
-  | 'product_studio_application' | 'coffee_chat' | 'members_list' | 'people_bulk';
+  | 'product_studio_application' | 'coffee_chat' | 'members_list' | 'people_bulk'
+  | 'slack_members';
 export type ImportStatus = 'uploaded' | 'parsed' | 'needs_review' | 'committed' | 'failed';
 export type ReviewStatus = 'open' | 'resolved' | 'dismissed';
 export type ReviewKind = 'no_match' | 'ambiguous_match' | 'conflict' | 'field_conflict' | 'bad_row';

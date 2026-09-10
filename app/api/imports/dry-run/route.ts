@@ -5,7 +5,14 @@ import { createServerClient } from '@/lib/supabase/server';
 import { revalidate, tags } from '@/lib/cache';
 import { applyMapping, fileHash, parseCsv, rowHash } from '@/lib/imports/parse';
 import type { ParsedRow } from '@/lib/imports/schemas';
-import { buildPersonIndex, matchPerson } from '@/lib/matching/matchPerson';
+import { addPersonToIndex, buildPersonIndex, matchPerson } from '@/lib/matching/matchPerson';
+import { fetchAll } from '@/lib/paginate';
+
+interface PersonRow {
+  id: string; first_name: string | null; last_name: string | null;
+  uniqname: string | null; slack_user_id: string | null;
+}
+interface EmailRow { person_id: string; email: string; is_primary: boolean }
 import type { ImportRowStatus, Json } from '@/lib/types';
 
 /**
@@ -50,6 +57,15 @@ interface Staged {
   error: string | null;
 }
 
+/** Ids for people this file will create; they exist only for the preview's own index. */
+const pendingId = (row: number) => `pending:${row}`;
+const isPending = (id: string) => id.startsWith('pending:');
+
+/** Bots and deactivated accounts are not people (§8.4); apply_import_row drops them. */
+const isSkippedSlackAccount = (row: ParsedRow) =>
+  ['bot', 'deactivated'].includes((row.slack_status ?? '').toLowerCase())
+  || (row.email_normalized ?? '').endsWith('@slack-bots.com');
+
 /** The §3.2 ladder rungs in the operator's words; the wizard prints these as-is. */
 const REASON_COPY: Record<string, string> = {
   slack_user_id: 'Slack id matches exactly',
@@ -88,17 +104,21 @@ export async function POST(req: Request) {
   // Everything matching needs, in three queries: the people index the TS mirror of
   // the ladder reads, and the hashes already applied for this (kind, event).
   const priorQuery = db.from('imports').select('id').eq('kind', record.kind);
+  // Paged: an unbounded select stops at 1000 rows, which would hide most of the
+  // database from the matcher and report everyone as a new person.
   const [people, emails, prior] = await Promise.all([
-    db.from('people').select('id,first_name,last_name,uniqname,slack_user_id'),
-    db.from('person_emails').select('person_id,email,is_primary'),
+    fetchAll<PersonRow>((f, t) => db.from('people')
+      .select('id,first_name,last_name,uniqname,slack_user_id').order('id').range(f, t)),
+    fetchAll<EmailRow>((f, t) => db.from('person_emails')
+      .select('person_id,email,is_primary').order('person_id').order('email').range(f, t)),
     record.event_id ? priorQuery.eq('event_id', record.event_id) : priorQuery.is('event_id', null),
   ]);
 
   const byPerson = new Map<string, { email: string; is_primary: boolean }[]>();
-  for (const row of emails.data ?? []) {
+  for (const row of emails) {
     byPerson.set(row.person_id, [...(byPerson.get(row.person_id) ?? []), row]);
   }
-  const index = buildPersonIndex((people.data ?? []).map((p) => {
+  const index = buildPersonIndex(people.map((p) => {
     const mine = byPerson.get(p.id) ?? [];
     const name = fullName(p.first_name, p.last_name);
     const primary = (mine.find((e) => e.is_primary) ?? mine[0])?.email ?? null;
@@ -113,10 +133,15 @@ export async function POST(req: Request) {
   }));
 
   const priorIds = (prior.data ?? []).map((r) => r.id).filter((id) => id !== import_id);
+  // Paged for the same reason as the index: a prior import of a few thousand rows
+  // would otherwise contribute only its first 1000 hashes, and the preview would
+  // call already-applied rows new.
   const applied = priorIds.length
-    ? await db.from('import_rows').select('row_hash').eq('status', 'applied').in('import_id', priorIds)
-    : { data: [] };
-  const seen = new Set((applied.data ?? []).map((r) => r.row_hash));
+    ? await fetchAll<{ row_hash: string }>((f, t) => db.from('import_rows')
+        .select('row_hash').eq('status', 'applied').in('import_id', priorIds)
+        .order('row_hash').range(f, t))
+    : [];
+  const seen = new Set(applied.map((r) => r.row_hash));
 
   const review: PreviewRow[] = [];
   const autoLinked: PreviewRow[] = [];
@@ -153,8 +178,15 @@ export async function POST(req: Request) {
     }
     if (seen.has(hash)) return { ...staged, status: 'skipped_unchanged', error: null };
 
+    // Mirror of the filter in apply_import_row: §8.4 syncs only non-bot,
+    // non-deleted users. Predicted here too, or the preview would promise to
+    // create ~26 people the commit is going to skip.
+    if (record.kind === 'slack_members' && isSkippedSlackAccount(parsed)) {
+      return { ...staged, status: 'skipped_unchanged', error: null };
+    }
+
     const match = matchPerson(
-      { email: parsed.email, name, uniqname: parsed.uniqname, slackUserId: null },
+      { email: parsed.email, name, uniqname: parsed.uniqname, slackUserId: parsed.slack_user_id },
       index,
     );
     const line: PreviewRow = {
@@ -169,12 +201,24 @@ export async function POST(req: Request) {
       // A 1.00 email or Slack hit needs no explaining; a lower auto-link is the
       // uniqname rung, which the operator should see before committing.
       if (match.confidence < 1) autoLinked.push(line);
-      return { ...staged, person_id: match.personId, match_confidence: match.confidence, status: 'pending', error: null };
+      // A pending id belongs to a row earlier in this same file, not to a row in
+      // the database, so it must not be written to import_rows.person_id.
+      const personId = isPending(match.personId) ? null : match.personId;
+      return { ...staged, person_id: personId, match_confidence: match.confidence, status: 'pending', error: null };
     }
     if (match.candidates.length > 0) {
       review.push(line);
       return { ...staged, match_confidence: match.confidence, status: 'review', error: null };
     }
+    // This row will create a person, so later rows in the same file can match it.
+    addPersonToIndex(index, {
+      id: pendingId(row_index),
+      display: who,
+      name,
+      emails: parsed.email ? [parsed.email] : [],
+      uniqname: parsed.uniqname,
+      slackUserId: parsed.slack_user_id,
+    });
     return { ...staged, status: 'pending', error: null };
   });
 

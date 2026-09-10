@@ -54,24 +54,34 @@ export function buildPersonIndex(people: readonly IndexPerson[]): PersonIndex {
     names: [],
     display: new Map(),
   };
-  for (const person of people) {
-    index.display.set(person.id, person.display);
-    if (person.slackUserId) index.bySlack.set(person.slackUserId, person.id);
-    for (const email of person.emails ?? []) {
-      if (email) index.byEmail.set(normalizeEmail(email), person.id);
-    }
-    const uniqname =
-      person.uniqname?.trim().toLowerCase() ??
-      person.emails?.map((e) => (e ? uniqnameFromEmail(e) : null)).find(Boolean) ??
-      null;
-    if (uniqname) index.byUniqname.set(uniqname, person.id);
-    const name = person.name ? normalizeName(person.name) : '';
-    if (name !== '') {
-      index.byName.set(name, [...(index.byName.get(name) ?? []), person.id]);
-      index.names.push({ id: person.id, grams: trigrams(name) });
-    }
-  }
+  for (const person of people) addPersonToIndex(index, person);
   return index;
+}
+
+/**
+ * Add one person to an existing index.
+ *
+ * A dry run needs this because `apply_import` walks its rows in order: a person
+ * created at row 500 is matchable by row 900. Without folding pending rows back
+ * in, a preview reports two same-named people as two new rows while the commit
+ * sends the second to review.
+ */
+export function addPersonToIndex(index: PersonIndex, person: IndexPerson): void {
+  index.display.set(person.id, person.display);
+  if (person.slackUserId) index.bySlack.set(person.slackUserId, person.id);
+  for (const email of person.emails ?? []) {
+    if (email) index.byEmail.set(normalizeEmail(email), person.id);
+  }
+  const uniqname =
+    person.uniqname?.trim().toLowerCase() ??
+    person.emails?.map((e) => (e ? uniqnameFromEmail(e) : null)).find(Boolean) ??
+    null;
+  if (uniqname) index.byUniqname.set(uniqname, person.id);
+  const name = person.name ? normalizeName(person.name) : '';
+  if (name !== '') {
+    index.byName.set(name, [...(index.byName.get(name) ?? []), person.id]);
+    index.names.push({ id: person.id, grams: trigrams(name) });
+  }
 }
 
 export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): MatchResult {
@@ -151,7 +161,7 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
   if (name !== '') {
     const grams = trigrams(name);
     const similar = candidatesSource.names
-      .map((entry) => ({ id: entry.id, similarity: dice(grams, entry.grams) }))
+      .map((entry) => ({ id: entry.id, similarity: similarity(grams, entry.grams) }))
       .filter((entry) => entry.similarity >= TRIGRAM_THRESHOLD)
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, 5)
@@ -170,10 +180,15 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
   return { personId: null, confidence: 1, candidates: [], reason: 'new', isConflict: false };
 }
 
-/** §3.2 rung 5: similarity 0.6..1.0 maps onto the 0.4..0.69 review band. */
+/**
+ * §3.2 rung 5. The SQL ladder is authoritative — it is what the commit runs — so
+ * this reports the number it will: the similarity itself, capped into the review
+ * band at 0.69 (`least(round(similarity, 2), 0.69)` in 0009_matching.sql).
+ * Scaling it differently made the preview disagree with the review queue about
+ * the same pair of people.
+ */
 function trigramConfidence(similarity: number): number {
-  const scaled = 0.4 + ((similarity - TRIGRAM_THRESHOLD) / (1 - TRIGRAM_THRESHOLD)) * 0.29;
-  return Math.round(scaled * 100) / 100;
+  return Math.min(Math.round(similarity * 100) / 100, 0.69);
 }
 
 function trigrams(value: string): Set<string> {
@@ -183,9 +198,14 @@ function trigrams(value: string): Set<string> {
   return out;
 }
 
-function dice(a: Set<string>, b: Set<string>): number {
+/**
+ * pg_trgm's `similarity()` is Jaccard — shared / union. Dice (2*shared / a+b)
+ * scores systematically higher, so at the same 0.6 threshold the preview flagged
+ * three times as many rows as the commit actually sent to review.
+ */
+function similarity(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 || b.size === 0) return 0;
   let shared = 0;
   for (const gram of a) if (b.has(gram)) shared++;
-  return (2 * shared) / (a.size + b.size);
+  return shared / (a.size + b.size - shared);
 }

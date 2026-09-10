@@ -19,6 +19,7 @@ const SOURCE: Record<ImportKind, ImportSource> = {
   coffee_chat: 'manual_csv',
   members_list: 'manual_csv',
   people_bulk: 'manual_csv',
+  slack_members: 'slack',
 };
 
 const Body = z.object({

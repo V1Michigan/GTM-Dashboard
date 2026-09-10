@@ -280,3 +280,39 @@ describe('hashing', () => {
     expect(fileHash(new TextEncoder().encode('a'))).toMatch(/^[0-9a-f]{64}$/);
   });
 });
+
+describe('slack_members', () => {
+  const HEADERS = ['username', 'email', 'status', 'billing-active', 'has-2fa',
+    'has-sso', 'userid', 'fullname', 'displayname', 'expiration-timestamp'];
+  const row = (over: Record<string, string> = {}) => ({
+    username: 'vkukutla', email: 'vkukutla@umich.edu', status: 'Member',
+    'billing-active': '0', 'has-2fa': '0', 'has-sso': '0',
+    userid: 'U04JWPPBQ2H', fullname: 'Vijaya Kukutla', displayname: 'Vijaya Kukutla',
+    'expiration-timestamp': '', ...over,
+  });
+  const parse = (over?: Record<string, string>) =>
+    applyMapping(row(over), guessMapping(HEADERS, 'slack_members'), 'slack_members').parsed;
+
+  it('maps the Slack workspace export onto the canonical fields', () => {
+    const p = parse();
+    expect(p.email).toBe('vkukutla@umich.edu');
+    expect(p.slack_user_id).toBe('U04JWPPBQ2H');
+    expect(p.slack_status).toBe('Member');
+    expect(p.first_name).toBe('Vijaya');
+    expect(p.last_name).toBe('Kukutla');
+    // umich address, so the uniqname rung has something to match on
+    expect(p.uniqname).toBe('vkukutla');
+  });
+
+  it('keeps the columns it does not map, rather than dropping them', () => {
+    const mapping = guessMapping(HEADERS, 'slack_members');
+    const { unmapped } = applyMapping(row(), mapping, 'slack_members');
+    expect(Object.keys(unmapped)).toContain('username');
+    expect(Object.keys(unmapped)).toContain('has-2fa');
+  });
+
+  it('carries the status through so apply_import can drop bots and deactivated users', () => {
+    expect(parse({ status: 'Bot', email: 'x@slack-bots.com' }).slack_status).toBe('Bot');
+    expect(parse({ status: 'Deactivated' }).slack_status).toBe('Deactivated');
+  });
+});

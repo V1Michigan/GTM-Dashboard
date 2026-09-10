@@ -69,4 +69,5 @@ export const KIND_LABEL: Record<ImportKind, string> = {
   coffee_chat: 'Coffee chat',
   members_list: 'Members list',
   people_bulk: 'People bulk',
+  slack_members: 'Slack members',
 };

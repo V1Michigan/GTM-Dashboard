@@ -38,6 +38,9 @@ export interface ParsedRow {
   referred_by_email: string | null;
   submitted_at: string | null;
   tally_submission_id: string | null;
+  slack_user_id: string | null;
+  /** Raw Slack account status ('Member', 'Bot', 'Deactivated', …); apply_import filters on it. */
+  slack_status: string | null;
   /** Unmapped headers under their original label; `event_checkin` writes these to `checkin_answers`. */
   answers: Record<string, Json>;
   is_test_row: boolean;
@@ -148,6 +151,8 @@ function toParsedRow(
     referred_by_email: raw('referred_by_email'),
     submitted_at: submittedAt,
     tally_submission_id: submissionId,
+    slack_user_id: raw('slack_user_id'),
+    slack_status: raw('slack_status'),
     answers,
     is_test_row: isTestRow({ email, name: full ?? `${firstName ?? ''} ${lastName ?? ''}` }),
   };

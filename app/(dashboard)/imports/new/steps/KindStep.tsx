@@ -15,6 +15,7 @@ const DESCRIPTION: Record<ImportKind, string> = {
   coffee_chat: 'Coffee chat log',
   members_list: 'Roster: email, name, member_since',
   people_bulk: 'Generic people CSV',
+  slack_members: 'Slack workspace export: links or creates people by email',
 };
 const ORDER = Object.keys(DESCRIPTION) as ImportKind[];
 const CREATE = '__create_event__';
