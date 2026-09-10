@@ -16,6 +16,9 @@ const option = (p: PeopleDirectoryRow) => ({
   email: p.primary_email,
 });
 
+/** Live per-request data; never prerender. See app/(dashboard)/layout.tsx. */
+export const dynamic = 'force-dynamic';
+
 export default async function LogCoffeeChatPage() {
   const session = await requireSession();
   const isAdmin = session.role === 'admin';
