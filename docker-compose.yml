@@ -1,0 +1,25 @@
+# The backend is the Supabase local stack (`supabase start`), which is the real
+# backend running locally rather than a mock. This file runs the web app against
+# it, plus an optional tunnel so Slack and Tally can reach the webhook routes.
+services:
+  web:
+    build:
+      context: .
+      target: dev
+    ports: ["3000:3000"]
+    env_file: [.env]
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: http://host.docker.internal:54321
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    extra_hosts: ["host.docker.internal:host-gateway"]
+
+  # `docker compose --profile tunnel up` — prints a public URL in its logs; paste
+  # that into the Slack app's Request URL and Tally's webhook endpoint.
+  slack-tunnel:
+    profiles: [tunnel]
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://web:3000
+    depends_on: [web]

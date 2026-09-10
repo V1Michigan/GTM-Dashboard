@@ -1,0 +1,79 @@
+project_id = "v1-gtm-dashboard"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = false
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1"
+
+# Catches outbound mail locally; nothing in v1 sends any.
+[inbucket]
+enabled = true
+port = 54324
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# Raw CSV uploads (spec §4.6 imports.storage_path). Private: the files carry
+# names, emails and resume links, and are served through the app's own routes.
+[storage.buckets.imports]
+public = false
+file_size_limit = "50MiB"
+allowed_mime_types = ["text/csv", "application/vnd.ms-excel", "text/plain"]
+
+[auth]
+enabled = true
+site_url = "env(NEXT_PUBLIC_SITE_URL)"
+additional_redirect_urls = ["http://localhost:3000", "http://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+refresh_token_reuse_interval = 10
+enable_signup = true   # Google sign-ups; email/password is disabled below (spec §5)
+enable_anonymous_sign_ins = false
+
+# Spec §5: Google is the only way in. Email/password MUST stay disabled.
+[auth.email]
+enable_signup = false
+enable_confirmations = false
+double_confirm_changes = false
+
+[auth.sms]
+enable_signup = false
+enable_confirmations = false
+
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"
+skip_nonce_check = false
+
+[analytics]
+enabled = false
+
+# Stamps app_role onto the JWT so middleware needs no database round trip.
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"

@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js build output
+.next/
+out/
+build/
+dist/
+.turbo/
+
+# Secrets. Only .env.example is tracked — it lists every variable with no values.
+.env
+.env.*
+!.env.example
+
+# Supabase local state. Migrations, seed.sql and config.toml ARE tracked.
+supabase/.temp/
+supabase/.branches/
+supabase/logs/
+supabase/.env
+
+# Deploy tooling state
+.netlify/
+.vercel/
+
+# TypeScript / tooling caches
+*.tsbuildinfo
+next-env.d.ts
+.eslintcache
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

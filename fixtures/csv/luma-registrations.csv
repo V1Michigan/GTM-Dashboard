@@ -1,0 +1,21 @@
+guest_id,approval_status,name,first_name,last_name,email,phone_number,created_at,checked_in_at,ticket_type_id,ticket_name,amount,amount_tax,amount_discount,currency,coupon_code,referrer,utm_source,referred_by,eth_address,solana_address,survey_response_rating,survey_response_feedback,qr_code_url
+g-0001,approved,Ava Chen,Ava,Chen,avachen@umich.edu,,2026-09-01T14:23:11.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Instagram,instagram,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0001
+g-0002,approved,Noah Patel,Noah,Patel,noahpat@umich.edu,,2026-09-01T14:31:02.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Meta Ad,meta,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0002
+g-0003,approved,Maya Rodriguez,Maya,Rodriguez,mayarod@umich.edu,,2026-09-01T15:02:44.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0003
+g-0004,approved,Liam Okafor,Liam,Okafor,liamok@umich.edu,,2026-09-01T15:10:19.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Instagram,instagram,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0004
+g-0005,approved,Sofia Nguyen,Sofia,Nguyen,sofian@umich.edu,,2026-09-01T16:45:57.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0005
+g-0006,approved,Ethan Brooks,Ethan,Brooks,ethanb@umich.edu,,2026-09-02T09:12:03.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Friend,,avachen@umich.edu,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0006
+g-0007,approved,Isabella Kim,Isabella,Kim,ikim@umich.edu,,2026-09-02T09:48:30.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0007
+g-0008,approved,Mason Delgado,Mason,Delgado,masondel@umich.edu,,2026-09-02T11:20:41.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Instagram,instagram,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0008
+g-0009,approved,Amara Osei,Amara,Osei,aosei@umich.edu,,2026-09-02T12:05:16.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0009
+g-0010,approved,Lucas Fontaine,Lucas,Fontaine,lfontaine@umich.edu,,2026-09-02T13:37:52.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0010
+g-0011,declined,Harper Lindqvist,Harper,Lindqvist,harperl@umich.edu,,2026-09-02T14:01:08.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0011
+g-0012,approved,Elijah Moreau,Elijah,Moreau,emoreau@umich.edu,,2026-09-03T08:55:23.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Instagram,instagram,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0012
+g-0013,approved,Zoe Vasquez,Zoe,Vasquez,zoevas@gmail.com,,2026-09-03T10:14:39.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0013
+g-0014,approved,Caleb Mwangi,Caleb,Mwangi,calebmw@umich.edu,,2026-09-03T11:42:07.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0014
+g-0015,approved,Priya Raghavan,Priya,,praghav@umich.edu,,2026-09-03T13:09:55.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0015
+g-0016,approved,Owen Marsh,Owen,Marsh,owenmarsh@umich.edu,,2026-09-03T15:33:12.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0016
+g-0017,pending,Layla Haddad,Layla,Haddad,laylah@gmail.com,,2026-09-04T09:21:48.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0017
+g-0018,approved,Julian Ferreira,Julian,,jferreira@umich.edu,,2026-09-04T10:47:31.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0018
+g-0019,approved,Nina Kowalski,Nina,Kowalski,nkowal@umich.edu,,2026-09-04T12:15:04.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,Instagram,instagram,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0019
+g-0020,approved,Theo Bergstrom,Theo,Bergstrom,tbergstrom@umich.edu,,2026-09-04T16:58:26.000Z,,tt-1a2b3c4d,Standard,0,0,0,usd,,,,,,,,,https://lu.ma/check-in/evt-K7dQ2mNpXrLb9Vt?pk=g-0020

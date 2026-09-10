@@ -1,0 +1,67 @@
+/* Hoisted out of nocturne.css: an @import must precede every other rule. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+/* Nocturne design system — copied verbatim from the handoff. This file is the
+   canonical token source (design_files/design-system/styles.css); retune there. */
+@import "./nocturne.css";
+
+/* Expose the Nocturne tokens to Tailwind utilities so `bg-surface`,
+   `text-neutral-500`, `p-4`, `rounded-md` all resolve to the same values the
+   component classes use. No tailwind.config.ts is needed under Tailwind v4. */
+@theme inline {
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-divider: var(--color-divider);
+  --color-accent: var(--color-accent);
+  --color-accent-100: var(--color-accent-100);
+  --color-accent-200: var(--color-accent-200);
+  --color-accent-300: var(--color-accent-300);
+  --color-accent-400: var(--color-accent-400);
+  --color-accent-500: var(--color-accent-500);
+  --color-accent-600: var(--color-accent-600);
+  --color-accent-700: var(--color-accent-700);
+  --color-accent-800: var(--color-accent-800);
+  --color-accent-900: var(--color-accent-900);
+  --color-neutral-100: var(--color-neutral-100);
+  --color-neutral-200: var(--color-neutral-200);
+  --color-neutral-300: var(--color-neutral-300);
+  --color-neutral-400: var(--color-neutral-400);
+  --color-neutral-500: var(--color-neutral-500);
+  --color-neutral-600: var(--color-neutral-600);
+  --color-neutral-700: var(--color-neutral-700);
+  --color-neutral-800: var(--color-neutral-800);
+  --color-neutral-900: var(--color-neutral-900);
+  --font-sans: var(--font-body);
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --spacing: 2.8px;  /* density 0.70x: p-1=2.8 p-2=5.6 p-3=8.4 p-4=11.2 p-6=16.8 p-8=22.4 */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+}
+
+/* App-level additions to the system. Everything else lives in nocturne.css. */
+
+/* Dense data tables (spec §2): 13px body, 11px uppercase headers. */
+.table-dense { font-size: 13px; }
+.table-dense th { white-space: nowrap; }
+.table-dense td { padding-block: 6px; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Row-click navigation is the only navigation on list pages, so rows must be
+   keyboard-activatable and carry the accent focus ring. */
+.row-link { cursor: pointer; }
+.row-link:focus-visible { outline: 2px solid var(--color-accent); outline-offset: -2px; }
+
+/* Inline-editable field: dashed underline until activated (design handoff). */
+.editable { border-bottom: 1px dashed var(--color-neutral-600); cursor: text; }
+.editable:hover { border-bottom-color: var(--color-accent); }
+
+/* The system has no semantic error color; errors are a surface panel + copy. */
+.notice { background: var(--color-surface); border: 1px solid var(--color-neutral-700);
+  border-radius: var(--radius-md); padding: var(--space-4); font-size: 13px; }
+
+.label-kicker { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--color-text) 60%, transparent); }

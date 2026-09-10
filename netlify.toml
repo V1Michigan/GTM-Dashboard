@@ -1,0 +1,10 @@
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Daily Slack sync (spec §8.4): join new public channels, backfill users, prune dedupe.
+[functions."slack-sync"]
+  schedule = "0 8 * * *"
