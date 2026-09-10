@@ -29,7 +29,32 @@ export async function POST(req: Request) {
       .eq('import_id', import_id).like('error', 'bad_row:%');
   }
 
-  const { error } = await db.rpc('apply_import', { p_import_id: import_id });
+  /*
+   * Chunked rather than one `apply_import` call: PostgREST arms a
+   * statement_timeout when a call begins and a statement cannot extend its own
+   * deadline, so a large import was cancelled and rolled back in full. Each
+   * chunk is its own short transaction; rows are never deleted by an import and
+   * failures are recorded per row, so this is resumable rather than all-or-nothing.
+   */
+  const CHUNK = 200;
+  for (let guard = 0; ; guard++) {
+    const { data: done, error } = await db.rpc('apply_import_chunk', {
+      p_import_id: import_id, p_limit: CHUNK,
+    });
+    if (error) {
+      await db.from('imports').update({ status: 'failed', error: error.message }).eq('id', import_id);
+      revalidate(tags.imports);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    if (!done) break;
+    if (guard > 1000) {
+      const message = 'Import did not finish: too many chunks.';
+      await db.from('imports').update({ status: 'failed', error: message }).eq('id', import_id);
+      revalidate(tags.imports);
+      return NextResponse.json({ error: message }, { status: 500 });
+    }
+  }
+  const { error } = await db.rpc('finalize_import', { p_import_id: import_id });
   if (error) {
     await db.from('imports').update({ status: 'failed', error: error.message }).eq('id', import_id);
     revalidate(tags.imports);

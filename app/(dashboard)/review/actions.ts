@@ -87,6 +87,9 @@ export async function resolveReviewItem(raw: ResolveInput): Promise<ResolveResul
       const { error } = await db.rpc('apply_import_row', {
         p_import_row_id: item.import_row_id,
         p_incoming_wins: action === 'field_use',
+        // The human already decided; without this the ladder re-runs, finds the
+        // same ambiguity and queues a replacement item.
+        p_force_create: action === 'create',
       });
       if (error) return { ok: false, error: error.message };
     } else if (item.slack_user_id) {
