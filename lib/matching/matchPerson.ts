@@ -7,7 +7,7 @@ import { normalizeEmail, normalizeName, typoDomainDistance, uniqnameFromEmail } 
  */
 
 export const AUTO_LINK_THRESHOLD = 0.9;
-export const REVIEW_MIN_CONFIDENCE = 0.4;
+export const REVIEW_MIN_CONFIDENCE = 0.85;
 export const TRIGRAM_THRESHOLD = 0.6;
 
 export interface MatchInput {
@@ -62,9 +62,8 @@ export function buildPersonIndex(people: readonly IndexPerson[]): PersonIndex {
  * Add one person to an existing index.
  *
  * A dry run needs this because `apply_import` walks its rows in order: a person
- * created at row 500 is matchable by row 900. Without folding pending rows back
- * in, a preview reports two same-named people as two new rows while the commit
- * sends the second to review.
+ * created at row 500 is matchable by row 900 through its email or identifier,
+ * keeping the preview consistent with the commit.
  */
 export function addPersonToIndex(index: PersonIndex, person: IndexPerson): void {
   index.display.set(person.id, person.display);
@@ -108,7 +107,7 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
   add(email ? candidatesSource.byEmail.get(email) : undefined, 1, 'email');
   add(uniqname ? candidatesSource.byUniqname.get(uniqname) : undefined, 0.95, 'uniqname');
 
-  // §3.2: two different people at >= 0.9 through different keys is a conflict. Never auto-merge.
+  // Two different people above the auto-link threshold through different keys is a conflict.
   const strong = hits.filter((h) => h.confidence >= AUTO_LINK_THRESHOLD);
   if (new Set(strong.map((h) => h.person_id)).size > 1) {
     return {
@@ -131,12 +130,12 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
   }
 
   // §4.8: a domain close to umich.edu means the local part is a uniqname candidate,
-  // at 0.85 so it lands in review with the fix pre-filled. Never rewrite the address.
+  // at 0.85, meeting the manual-review minimum. Never rewrite the address.
   const distance = email ? typoDomainDistance(email) : null;
   if (email && distance !== null && distance > 0) {
     const guess = uniqnameFromEmail(email.replace(/@.*$/, '@umich.edu'));
     const hit = guess ? candidatesSource.byUniqname.get(guess) : undefined;
-    if (hit) {
+    if (hit && 0.85 >= REVIEW_MIN_CONFIDENCE) {
       return {
         personId: null,
         confidence: 0.85,
@@ -147,8 +146,9 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
     }
   }
 
+  // Weak name matches create a new person unless they meet the review minimum.
   const exact = name === '' ? [] : candidatesSource.byName.get(name) ?? [];
-  if (exact.length === 1) {
+  if (exact.length === 1 && 0.7 >= REVIEW_MIN_CONFIDENCE) {
     return {
       personId: null,
       confidence: 0.7,
@@ -165,7 +165,8 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
       .filter((entry) => entry.similarity >= TRIGRAM_THRESHOLD)
       .sort((a, b) => b.similarity - a.similarity)
       .slice(0, 5)
-      .map((entry) => candidate(entry.id, trigramConfidence(entry.similarity), 'name_trigram'));
+      .map((entry) => candidate(entry.id, trigramConfidence(entry.similarity), 'name_trigram'))
+      .filter((entry) => entry.confidence >= REVIEW_MIN_CONFIDENCE);
     if (similar.length > 0) {
       return {
         personId: null,
@@ -182,8 +183,8 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
 
 /**
  * §3.2 rung 5. The SQL ladder is authoritative — it is what the commit runs — so
- * this reports the number it will: the similarity itself, capped into the review
- * band at 0.69 (`least(round(similarity, 2), 0.69)` in 0009_matching.sql).
+ * this reports the number it will: the similarity itself, capped at 0.69.
+ * Name similarity alone falls below the 0.85 manual-review minimum.
  * Scaling it differently made the preview disagree with the review queue about
  * the same pair of people.
  */

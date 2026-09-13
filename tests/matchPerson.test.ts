@@ -71,7 +71,7 @@ describe('rungs 1-3: auto-link at >= 0.9', () => {
 });
 
 describe('typo domains (§4.8)', () => {
-  it('lands in review at 0.85 with the fix pre-filled, never auto-linked', () => {
+  it('requires review for a likely duplicate at the 0.85 cutoff', () => {
     const result = match({ email: 'nkowal@umich.efu', name: 'Nina Kowalski' });
     expect(result).toMatchObject({
       personId: null,
@@ -83,32 +83,16 @@ describe('typo domains (§4.8)', () => {
   });
 });
 
-describe('rungs 4-6: the review band and new people', () => {
-  it('4. one exact name match is review at 0.7, not an auto-link', () => {
-    const result = match({ email: 'elijah.m@gmail.com', name: 'Elijah Moreau' });
-    expect(result).toMatchObject({ personId: null, confidence: 0.7, reason: 'name_exact' });
-    expect(result.candidates.map((c) => c.person_id)).toEqual(['p6']);
-  });
-
-  it('5. two people with the same name go to review with both listed', () => {
-    const result = match({ email: 'maya.r@gmail.com', name: 'Maya Rodriguez' });
-    expect(result.personId).toBeNull();
-    expect(result.confidence).toBeGreaterThanOrEqual(0.4);
-    expect(result.confidence).toBeLessThan(0.9);
-    expect(result.candidates.map((c) => c.person_id).sort()).toEqual(['p3', 'p4']);
-  });
-
-  it('5. a near-miss name is review, in the 0.4-0.69 band', () => {
-    const result = match({ email: 'elijahm@umich.edu', name: 'Elijah Morea' });
-    expect(result.reason).toBe('name_trigram');
-    expect(result.confidence).toBeGreaterThanOrEqual(0.4);
-    expect(result.confidence).toBeLessThanOrEqual(0.69);
-  });
-
-  it('6. nothing close is a new person', () => {
-    const result = match({ email: 'hyusuf@umich.edu', name: 'Hana Yusuf' });
-    expect(result).toMatchObject({ personId: null, confidence: 1, reason: 'new' });
-    expect(result.candidates).toEqual([]);
+describe('prefer new people over low-confidence name matches', () => {
+  it.each([
+    ['an exact name', 'Elijah Moreau'],
+    ['a name shared by two people', 'Maya Rodriguez'],
+    ['a similar name', 'Elijah Morea'],
+    ['an unrelated name', 'Hana Yusuf'],
+  ])('creates a new person for %s without a matching identifier', (_label, name) => {
+    expect(match({ email: 'new.person@gmail.com', name })).toEqual({
+      personId: null, confidence: 1, candidates: [], reason: 'new', isConflict: false,
+    });
   });
 });
 

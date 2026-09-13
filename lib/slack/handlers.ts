@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { AUTO_LINK_THRESHOLD } from '@/lib/matching/matchPerson';
 import { normalizeEmail, uniqnameFromEmail } from '@/lib/matching/normalize';
 import type { MatchCandidate } from '@/lib/types';
 import { slack } from './client';
@@ -42,8 +43,6 @@ interface MatchResult {
   confidence: number | string | null;
   candidates: MatchCandidate[] | null;
 }
-
-const AUTO_LINK = 0.9;
 
 /** Slack `ts` is epoch seconds; the club is in Michigan, so days are Detroit days. */
 const DETROIT_DAY = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Detroit' });
@@ -163,7 +162,7 @@ export async function matchSlackUser(
   });
   const m = (Array.isArray(data) ? data[0] : data) as MatchResult | undefined;
 
-  if (m?.person_id && Number(m.confidence) >= AUTO_LINK) {
+  if (m?.person_id && Number(m.confidence) >= AUTO_LINK_THRESHOLD) {
     await linkSlackUser(db, u.id, m.person_id, { email, joinedAt });
     return m.person_id;
   }

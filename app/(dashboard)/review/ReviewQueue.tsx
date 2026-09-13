@@ -21,7 +21,7 @@ const ORDER: ReviewKind[] = ['ambiguous_match', 'no_match', 'conflict', 'field_c
 /** Copy for each rung of the §3.2 ladder, used when the payload carries no reason of its own. */
 const WHY: Record<ReviewKind, string> = {
   no_match: 'No person matched by email, uniqname or name.',
-  ambiguous_match: 'Matched below the 0.9 auto-link threshold, so a human confirms it.',
+  ambiguous_match: 'Possible duplicate with confidence at least 0.85, so a human confirms it. Weaker matches create a new person.',
   conflict: 'Two keys point at different people at full confidence. People are never auto-merged.',
   field_conflict: 'A field already holds a different non-null value; nulls never overwrite.',
   bad_row: 'The row could not be turned into a person.',

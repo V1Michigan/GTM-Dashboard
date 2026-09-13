@@ -250,10 +250,10 @@ describe('matching the check-in fixture against the luma registrations', () => {
       else if (result.reason === 'new') tally.created++;
       else tally.review++;
     }
-    expect(tally).toEqual({ auto: 7, review: 2, created: 15, bad: 1 });
+    expect(tally).toEqual({ auto: 7, review: 1, created: 16, bad: 1 });
   });
 
-  it('the two review rows are the typo domain and the same-name gmail address', () => {
+  it('only the likely typo-domain duplicate needs review', () => {
     const reasons = checkin
       .filter((row) => !row.is_test_row)
       .map((row) =>
@@ -264,7 +264,7 @@ describe('matching the check-in fixture against the luma registrations', () => {
       )
       .filter((result) => result.personId === null && result.reason !== 'new')
       .map((result) => `${result.reason}:${result.confidence}`);
-    expect(reasons.sort()).toEqual(['name_exact:0.7', 'typo_domain_uniqname:0.85']);
+    expect(reasons.sort()).toEqual(['typo_domain_uniqname:0.85']);
   });
 });
 

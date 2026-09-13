@@ -5,7 +5,7 @@ import { createServerClient } from '@/lib/supabase/server';
 import { revalidate, tags } from '@/lib/cache';
 import { applyMapping, fileHash, parseCsv, rowHash } from '@/lib/imports/parse';
 import type { ParsedRow } from '@/lib/imports/schemas';
-import { addPersonToIndex, buildPersonIndex, matchPerson } from '@/lib/matching/matchPerson';
+import { AUTO_LINK_THRESHOLD, addPersonToIndex, buildPersonIndex, matchPerson } from '@/lib/matching/matchPerson';
 import { fetchAll } from '@/lib/paginate';
 
 interface PersonRow {
@@ -197,7 +197,7 @@ export async function POST(req: Request) {
       confidence: match.candidates.length ? match.confidence : null,
     };
 
-    if (match.personId && match.confidence >= 0.9) {
+    if (match.personId && match.confidence >= AUTO_LINK_THRESHOLD) {
       // A 1.00 email or Slack hit needs no explaining; a lower auto-link is the
       // uniqname rung, which the operator should see before committing.
       if (match.confidence < 1) autoLinked.push(line);

@@ -83,7 +83,7 @@ export function DryRunStep({ dry, running, allowBadRows, setAllowBadRows, onBack
         <div className="flex flex-col gap-2">
           <SectionHead
             title={`Rows needing review · ${dry.review.length}`}
-            note="These will land in the review queue after commit"
+            note="Likely duplicates (confidence ≥ 0.85) or conflicting identifiers; weaker matches create new people"
           />
           <PreviewTable rows={dry.review} showConfidence />
         </div>
