@@ -1,18 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Columns, UsersThree } from '@phosphor-icons/react/dist/ssr';
 import { DataTable, type ColumnDef } from '@/components/ui/DataTable';
 import { Popover } from '@/components/ui/Popover';
 import { Seg } from '@/components/ui/Seg';
 import { Empty, Tag } from '@/components/ui/primitives';
 import { gradeLabel } from '@/lib/grade';
+import { peopleSearchParams, type PeopleQuery } from '@/lib/peopleQuery';
+// Type only: lib/queries reads cookies and must not reach the client bundle.
 import type { PersonListRow } from '@/lib/queries';
 
 const STORAGE_KEY = 'v1gtm.people.columns';
 const MUTED = 'text-neutral-600';
-
-type Filter = 'all' | 'members' | 'slack' | 'no-slack';
 
 const fullName = (r: PersonListRow) => [r.first_name, r.last_name].filter(Boolean).join(' ');
 const dash = <span className={MUTED}>—</span>;
@@ -104,11 +105,33 @@ const DEFAULT_HIDDEN: Record<string, boolean> = Object.fromEntries(
   COLUMNS.filter((c) => c.meta?.hiddenByDefault).map((c) => [c.id ?? '', true]),
 );
 
-export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
-  const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [year, setYear] = useState('');
+export function PeopleTable(
+  { rows, total, pages, query, years }:
+  { rows: PersonListRow[]; total: number; pages: number; query: PeopleQuery; years: number[] },
+) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
   const [hidden, setHidden] = useState<Record<string, boolean>>(DEFAULT_HIDDEN);
+
+  /*
+   * The table's state is the URL. `search` is the one local copy, so typing
+   * stays responsive while the debounce below decides when to ask the server.
+   */
+  const [search, setSearch] = useState(query.q);
+  useEffect(() => { setSearch(query.q); }, [query.q]);
+
+  const go = useCallback((next: Partial<PeopleQuery>) => {
+    // Any change but paging lands on a different result set, so it starts at 0.
+    const merged = { ...query, ...next, page: next.page ?? 0 };
+    const qs = peopleSearchParams(merged);
+    startTransition(() => router.replace(qs ? `/people?${qs}` : '/people', { scroll: false }));
+  }, [query, router]);
+
+  useEffect(() => {
+    if (search === query.q) return;
+    const t = setTimeout(() => go({ q: search }), 300);
+    return () => clearTimeout(t);
+  }, [search, query.q, go]);
 
   useEffect(() => {
     try {
@@ -122,23 +145,6 @@ export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
     setHidden(next);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { /* ignore */ }
   };
-
-  const years = useMemo(
-    () => [...new Set(rows.map((r) => r.grad_year).filter((y): y is number => y !== null))].sort(),
-    [rows],
-  );
-
-  const shown = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return rows.filter((r) => {
-      if (filter === 'members' && !r.is_v1_member) return false;
-      if (filter === 'slack' && !r.slack_joined_at) return false;
-      if (filter === 'no-slack' && r.slack_joined_at) return false;
-      if (year !== '' && String(r.grad_year ?? '') !== year) return false;
-      if (!q) return true;
-      return `${fullName(r)} ${r.primary_email ?? ''} ${r.uniqname ?? ''}`.toLowerCase().includes(q);
-    });
-  }, [rows, search, filter, year]);
 
   const columns = useMemo(() => COLUMNS.filter((c) => !hidden[c.id ?? '']), [hidden]);
   const [visible, hiddenGroup] = [
@@ -155,7 +161,7 @@ export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
           placeholder="Search name, email, uniqname" aria-label="Search people"
         />
         <Seg
-          name="people-filter" value={filter} onChange={setFilter}
+          name="people-filter" value={query.filter} onChange={(filter) => go({ filter })}
           options={[
             { value: 'all', label: 'All' },
             { value: 'members', label: 'Members' },
@@ -164,7 +170,8 @@ export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
           ]}
         />
         <select
-          className="input" style={{ width: 150 }} value={year} onChange={(e) => setYear(e.target.value)}
+          className="input" style={{ width: 150 }} value={query.year ?? ''}
+          onChange={(e) => go({ year: e.target.value === '' ? null : Number(e.target.value) })}
           aria-label="Grad year"
         >
           <option value="">Grad year: any</option>
@@ -172,7 +179,9 @@ export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
         </select>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[12px] text-neutral-500">{shown.length.toLocaleString()} shown</span>
+          <span className="text-[12px] text-neutral-500">
+            {total.toLocaleString()} shown{pending && ' · …'}
+          </span>
           <Popover
             trigger={
               <button type="button" className="btn btn-secondary data-[state=open]:shadow-[inset_0_0_0_1px_var(--color-accent)]">
@@ -192,18 +201,44 @@ export function PeopleTable({ rows }: { rows: PersonListRow[] }) {
       </div>
 
       <DataTable
-        data={shown}
+        data={rows}
         columns={columns}
         rowHref={(r) => `/people/${r.id}`}
+        sorting={[{ id: query.sort, desc: query.desc }]}
+        onSortingChange={([s]) => go(s
+          ? { sort: s.id, desc: s.desc }
+          // Third click clears the sort; the list still needs an order.
+          : { sort: 'name', desc: false })}
         empty={
           <div className="notice flex items-center gap-3 text-neutral-500">
             <UsersThree size={20} />
-            {rows.length === 0
+            {total === 0 && query.q === '' && query.filter === 'all' && query.year === null
               ? 'No people yet. Import a Luma or Tally CSV to populate this table.'
               : 'No people match these filters.'}
           </div>
         }
       />
+
+      {pages > 1 && (
+        <div className="flex items-center justify-between text-[12px] text-neutral-500">
+          <span>Page {query.page + 1} of {pages.toLocaleString()}</span>
+          <span className="flex gap-2">
+            <button
+              type="button" className="btn btn-secondary" disabled={query.page === 0 || pending}
+              onClick={() => go({ page: query.page - 1 })}
+            >
+              Previous
+            </button>
+            <button
+              type="button" className="btn btn-secondary"
+              disabled={query.page >= pages - 1 || pending}
+              onClick={() => go({ page: query.page + 1 })}
+            >
+              Next
+            </button>
+          </span>
+        </div>
+      )}
     </div>
   );
 }

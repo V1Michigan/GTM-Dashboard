@@ -15,6 +15,7 @@ import { CaretDown, CaretUp, CaretUpDown } from '@phosphor-icons/react/dist/ssr'
  */
 export function DataTable<T>({
   data, columns, globalFilter, rowHref, initialVisibility, onVisibilityChange, pageSize = 50, empty,
+  sorting: controlledSorting, onSortingChange,
 }: {
   data: T[];
   columns: ColumnDef<T, unknown>[];
@@ -24,16 +25,29 @@ export function DataTable<T>({
   onVisibilityChange?: (v: VisibilityState) => void;
   pageSize?: number;
   empty?: React.ReactNode;
+  /**
+   * Pass both to sort server-side (/people sorts the whole table, not the page
+   * it was handed). Omitted, the table sorts its own rows as it always has.
+   */
+  sorting?: SortingState;
+  onSortingChange?: (s: SortingState) => void;
 }) {
   const router = useRouter();
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [internalSorting, setInternalSorting] = useState<SortingState>([]);
+  const sorting = controlledSorting ?? internalSorting;
+  const setSorting = onSortingChange ?? setInternalSorting;
   const [visibility, setVisibility] = useState<VisibilityState>(initialVisibility ?? {});
 
   const table = useReactTable({
     data,
     columns,
     state: { sorting, globalFilter: globalFilter ?? '', columnVisibility: visibility },
-    onSortingChange: setSorting,
+    // Controlled means the server already ordered these rows; re-sorting them
+    // here would fight it (the `name` column reads "First Last", the query
+    // orders by last_name).
+    manualSorting: controlledSorting !== undefined,
+    onSortingChange: (updater) =>
+      setSorting(typeof updater === 'function' ? updater(sorting) : updater),
     onColumnVisibilityChange: (updater) => {
       const next = typeof updater === 'function' ? updater(visibility) : updater;
       setVisibility(next);

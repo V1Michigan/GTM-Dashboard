@@ -1,5 +1,8 @@
 import { tags, withCache } from '@/lib/cache';
 import { fetchAll } from '@/lib/paginate';
+import {
+  PEOPLE_PAGE, PEOPLE_SORT, peopleSearchFilter, type PeopleQuery,
+} from '@/lib/peopleQuery';
 import { createServerClient } from '@/lib/supabase/server';
 import type {
   AppUser, CoffeeChat, EventAttendance, EventRow, EventStats, FieldChange, FormSubmission,
@@ -25,11 +28,54 @@ export interface PersonListRow extends Person {
   coffee_chats: number;
 }
 
-export const listPeople = () =>
-  withCache(['people-list'], [tags.people], async (db) => {
-    return fetchAll<PersonListRow>((f, t) =>
-      db.from('people_list').select('*').order('id').range(f, t));
-  });
+/**
+ * One page of /people. Uncached on purpose: a page is 50 rows behind the 0022
+ * indexes, which costs less than the Netlify Blobs round trip `withCache` adds
+ * — and every page/sort/filter combination would be its own cache entry.
+ */
+export async function listPeople(
+  query: PeopleQuery,
+): Promise<{ rows: PersonListRow[]; total: number }> {
+  const db = await createServerClient();
+  let sel = db.from('people_list').select('*', { count: 'exact' });
+
+  if (query.filter === 'members') sel = sel.eq('is_v1_member', true);
+  else if (query.filter === 'slack') sel = sel.not('slack_joined_at', 'is', null);
+  else if (query.filter === 'no-slack') sel = sel.is('slack_joined_at', null);
+  if (query.year !== null) sel = sel.eq('grad_year', query.year);
+
+  // ponytail: `primary_email` is a subquery in the view and cannot be indexed,
+  // so searching scans. At a few thousand people that is milliseconds, and the
+  // no-search path — which is what page load actually costs — stays indexed.
+  // Add a search column with its own trigram index if this ever gets slow.
+  const search = peopleSearchFilter(query.q);
+  if (search) sel = sel.or(search);
+
+  // `id` last so a page boundary is stable when the sort column ties.
+  for (const col of PEOPLE_SORT[query.sort] ?? PEOPLE_SORT.name!) {
+    sel = sel.order(col, { ascending: !query.desc, nullsFirst: false });
+  }
+  sel = sel.order('id');
+
+  const from = query.page * PEOPLE_PAGE;
+  const { data, count, error } = await sel.range(from, from + PEOPLE_PAGE - 1);
+  if (error) throw error;
+  return { rows: (data ?? []) as PersonListRow[], total: count ?? 0 };
+}
+
+/** The /people header counts. Whole-table counts never came from the page rows. */
+export async function peopleStats(): Promise<OverviewStats | null> {
+  const db = await createServerClient();
+  const { data } = await db.from('overview_stats').select('*').maybeSingle();
+  return (data ?? null) as OverviewStats | null;
+}
+
+/** Distinct grad years for the filter dropdown — ~10 rows from the 0022 view. */
+export async function gradYears(): Promise<number[]> {
+  const db = await createServerClient();
+  const { data } = await db.from('people_grad_years').select('grad_year').order('grad_year');
+  return ((data ?? []) as { grad_year: number }[]).map((r) => r.grad_year);
+}
 
 export interface PersonDetail {
   person: Person;
