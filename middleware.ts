@@ -76,11 +76,12 @@ export async function middleware(request: NextRequest) {
  * admin page's payload. RLS would still refuse the data; the 404 is the layer
  * that says the route does not exist for them, and it stays.
  */
+/*
+ * One string literal, however long. Next parses this export statically at build
+ * time and rejects anything it cannot read as a constant — splitting it with
+ * `+` fails the build with `Unsupported node type "BinaryExpression"`.
+ */
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image'
-    + '|(?:login|auth/callback|api/webhooks|api/slack)(?:/|$)'
-    + '|favicon\\.ico|robots\\.txt|sitemap\\.xml'
-    + '|.*\\.(?:svg|png|ico|jpe?g|gif|webp|avif|woff2?|ttf|otf|map)$).*)',
-  ],
+  // eslint-disable-next-line max-len
+  matcher: ['/((?!_next/static|_next/image|(?:login|auth/callback|api/webhooks|api/slack)(?:/|$)|favicon\\.ico|robots\\.txt|sitemap\\.xml|.*\\.(?:svg|png|ico|jpe?g|gif|webp|avif|woff2?|ttf|otf|map)$).*)'],
 };
