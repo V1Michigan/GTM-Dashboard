@@ -61,6 +61,26 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+/**
+ * What the edge function is allowed to skip entirely.
+ *
+ * PUBLIC is repeated here on purpose: matching it in the matcher means the edge
+ * function never boots for a Slack or Tally webhook, which is the bulk of the
+ * traffic this site gets. The runtime check above stays as the real guard — if
+ * this regex is ever edited wrong, the worst case must be a wasted invocation,
+ * not an unauthenticated page.
+ *
+ * RSC payload requests are deliberately NOT excluded. The router fires one per
+ * sidebar link on hover, so they are most of the invocations — but they return
+ * page content, and skipping the check here would let a `member` prefetch an
+ * admin page's payload. RLS would still refuse the data; the 404 is the layer
+ * that says the route does not exist for them, and it stays.
+ */
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|ico)$).*)'],
+  matcher: [
+    '/((?!_next/static|_next/image'
+    + '|(?:login|auth/callback|api/webhooks|api/slack)(?:/|$)'
+    + '|favicon\\.ico|robots\\.txt|sitemap\\.xml'
+    + '|.*\\.(?:svg|png|ico|jpe?g|gif|webp|avif|woff2?|ttf|otf|map)$).*)',
+  ],
 };

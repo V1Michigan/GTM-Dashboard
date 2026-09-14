@@ -8,3 +8,10 @@
 # Daily Slack sync (spec §8.4): join new public channels, backfill users, prune dedupe.
 [functions."slack-sync"]
   schedule = "0 8 * * *"
+
+# Keep the Next server function warm; see netlify/functions/keep-warm.ts for the
+# cold-vs-warm numbers. Cron is UTC, so 11-23 is roughly 7am-7pm Eastern — the
+# hours anyone opens this — and it stops overnight rather than burning
+# invocations on an empty dashboard. DST shifts it an hour; warming doesn't care.
+[functions."keep-warm"]
+  schedule = "*/5 11-23 * * *"
