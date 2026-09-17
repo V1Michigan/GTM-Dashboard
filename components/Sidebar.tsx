@@ -1,4 +1,5 @@
 'use client';
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -20,7 +21,7 @@ const ITEMS: { href: string; label: string; Icon: Icon; badge?: boolean }[] = [
 ];
 
 export function Sidebar(
-  { email, role, reviewCount }: { email: string; role: string; reviewCount: number },
+  { email, role, reviewBadge }: { email: string; role: string; reviewBadge: ReactNode },
 ) {
   const pathname = usePathname();
   return (
@@ -33,7 +34,6 @@ export function Sidebar(
       <nav className="flex flex-col gap-[2px]">
         {ITEMS.map(({ href, label, Icon, badge }) => {
           const on = href === '/' ? pathname === '/' : pathname.startsWith(href);
-          const count = badge ? reviewCount : 0;
           return (
             <Link
               key={href}
@@ -54,11 +54,7 @@ export function Sidebar(
                 <Icon size={16} aria-hidden />
                 {label}
               </span>
-              {count > 0 && (
-                <span className="rounded-[6px] bg-accent-800 px-[7px] py-px text-[11px] text-accent-100">
-                  {count}
-                </span>
-              )}
+              {badge ? reviewBadge : null}
             </Link>
           );
         })}

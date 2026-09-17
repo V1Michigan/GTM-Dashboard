@@ -1,8 +1,8 @@
 /**
  * Every dashboard route renders live database state, so a navigation waits on
  * the slowest query in the route before the browser is sent anything. This is
- * the segment's fallback: the sidebar and this skeleton paint immediately and
- * the real page streams in behind them.
+ * the segment's fallback: once layout authentication finishes, the sidebar and
+ * this skeleton can paint while the real page and review badge stream in.
  *
  * Deliberately generic — it stands in for /people, /events, /review and the
  * rest, so it mimics the shape they share (a header, then a block) rather than

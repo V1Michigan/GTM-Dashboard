@@ -1,6 +1,7 @@
+import { Suspense } from 'react';
 import { Sidebar } from '@/components/Sidebar';
+import { ReviewBadge } from '@/components/ReviewBadge';
 import { requireAdmin } from '@/lib/auth';
-import { openReviewCount } from '@/lib/queries';
 
 /**
  * Every page here renders live database state per request, so none of it may be
@@ -15,7 +16,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const session = await requireAdmin();
   return (
     <div className="flex min-h-screen">
-      <Sidebar email={session.email} role={session.role} reviewCount={await openReviewCount()} />
+      <Sidebar
+        email={session.email} role={session.role}
+        reviewBadge={<Suspense fallback={null}><ReviewBadge /></Suspense>}
+      />
       <main className="min-w-0 flex-1 px-9 pb-10 pt-7">{children}</main>
     </div>
   );

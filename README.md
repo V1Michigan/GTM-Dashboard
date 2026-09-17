@@ -21,6 +21,9 @@ through the service-role key, bypassing RLS. **It is honoured in every
 environment, production included** — while it is on, anyone who can reach the
 site has full admin access without signing in. See `lib/flags.ts`.
 
+See [performance notes](docs/performance.md) for the load-time changes, local
+benchmark results, and commands to verify the RLS optimization.
+
 ## Layout
 
 ```

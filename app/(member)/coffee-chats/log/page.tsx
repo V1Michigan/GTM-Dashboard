@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { Sidebar } from '@/components/Sidebar';
+import { ReviewBadge } from '@/components/ReviewBadge';
 import { requireSession } from '@/lib/auth';
-import { myCoffeeChats, openReviewCount, peopleDirectoryLive } from '@/lib/queries';
+import { myCoffeeChats, peopleDirectoryLive } from '@/lib/queries';
 import { LogForm, type RecentChat } from '@/app/(dashboard)/coffee-chats/LogForm';
 import type { PeopleDirectoryRow } from '@/lib/types';
 import { fmtDate } from '@/lib/format';
@@ -55,7 +57,10 @@ export default async function LogCoffeeChatPage() {
   if (isAdmin) {
     return (
       <div className="flex min-h-screen">
-        <Sidebar email={session.email} role={session.role} reviewCount={await openReviewCount()} />
+        <Sidebar
+          email={session.email} role={session.role}
+          reviewBadge={<Suspense fallback={null}><ReviewBadge /></Suspense>}
+        />
         <main className="flex min-w-0 flex-1 flex-col gap-[22px] px-9 pb-10 pt-7">
           <div className="text-[12.5px] text-neutral-500">
             <Link href="/coffee-chats" className="text-neutral-400 no-underline">Coffee chats</Link> / Log
