@@ -21,7 +21,7 @@ const ORDER: ReviewKind[] = ['ambiguous_match', 'no_match', 'conflict', 'field_c
 /** Copy for each rung of the §3.2 ladder, used when the payload carries no reason of its own. */
 const WHY: Record<ReviewKind, string> = {
   no_match: 'No person matched by email, uniqname or name.',
-  ambiguous_match: 'Possible duplicate with confidence at least 0.85, so a human confirms it. Weaker matches create a new person.',
+  ambiguous_match: 'Duplicate suggestions require the same full name and different emails. Confirm whether these are the same person.',
   conflict: 'Two keys point at different people at full confidence. People are never auto-merged.',
   field_conflict: 'A field already holds a different non-null value; nulls never overwrite.',
   bad_row: 'The row could not be turned into a person.',
@@ -32,9 +32,12 @@ const REASON_COPY: Record<string, string> = {
   slack_user_id: 'Slack id matches exactly',
   email: 'Email matches exactly',
   uniqname: 'Uniqname matches after normalisation',
-  typo_domain_uniqname: 'Typo domain; the local part matches a uniqname',
-  name_exact: 'Exact name match, one candidate',
-  name_trigram: 'Name similarity (trigram)',
+  typo_domain_uniqname: 'Earlier rule: typo domain and matching uniqname',
+  uniqname_typo_domain: 'Earlier rule: typo domain and matching uniqname',
+  name_exact: 'Earlier rule: normalized name match',
+  name_trigram: 'Earlier rule: similar name',
+  name_similarity: 'Earlier rule: similar name',
+  name_exact_email_different: 'Full name matches exactly; emails differ',
   conflict: 'Two keys point at different people; never auto-merged',
   new: 'No person matched by email, uniqname or name',
 };
@@ -118,6 +121,9 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
   }
 
   const payload = item.payload;
+  const legacySuggestion = item.kind === 'ambiguous_match'
+    && item.candidates.some((c) => ['typo_domain_uniqname', 'uniqname_typo_domain',
+      'name_exact', 'name_trigram', 'name_similarity'].includes(c.reason));
   const top = item.candidates[0];
   const selected = picked[item.id] ?? top?.person_id ?? null;
   const selectedLabel = item.candidates.find((c) => c.person_id === selected)?.display
@@ -198,7 +204,9 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   .map(([key, value]) => [key.replace(/_/g, ' '), str(value)])}
               />
               <p className="m-0 text-[12px] text-neutral-500">
-                {str(payload.reason) ?? WHY[item.kind]} The email is stored as typed: linking adds it
+                {legacySuggestion
+                  ? 'This suggestion was saved under earlier matching rules and has not been re-evaluated.'
+                  : str(payload.reason) ?? WHY[item.kind]} The email is stored as typed: linking adds it
                 to the person&rsquo;s emails, it is never rewritten.
               </p>
             </div>

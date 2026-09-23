@@ -71,9 +71,7 @@ const REASON_COPY: Record<string, string> = {
   slack_user_id: 'Slack id matches exactly',
   email: 'Email matches exactly',
   uniqname: 'Uniqname matches after normalisation',
-  typo_domain_uniqname: 'Typo domain; the local part matches a uniqname',
-  name_exact: 'Exact name match, one candidate',
-  name_trigram: 'Name similarity (trigram)',
+  name_exact_email_different: 'Full name matches exactly; emails differ',
   conflict: 'Email and Slack id point at different people; never auto-merged',
   new: 'No person matched by email, uniqname or name',
 };

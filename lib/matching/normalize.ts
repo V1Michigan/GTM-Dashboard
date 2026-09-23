@@ -32,6 +32,17 @@ export function normalizeName(name: string): string {
     .join(' ');
 }
 
+// Keep this explicit set in sync with normalize_match_name() in SQL. A broad
+// non-letter regex drops combining marks and can conflate different names.
+const MATCH_PUNCTUATION = new Set(Array.from('!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~‐‑‒–—―‘’‚‛“”„‟'));
+
+/** Strict duplicate matching: preserve every name token, including suffixes. */
+export function normalizeMatchName(name: string): string {
+  return Array.from(name.normalize('NFC').toLowerCase())
+    .filter((character) => !MATCH_PUNCTUATION.has(character)).join('')
+    .trim().replace(/\s+/g, ' ');
+}
+
 export function splitName(full: string): { first: string | null; last: string | null } {
   const name = full.trim().replace(/\s+/g, ' ');
   if (name === '') return { first: null, last: null };

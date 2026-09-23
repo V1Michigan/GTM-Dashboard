@@ -1,5 +1,5 @@
 import type { MatchCandidate } from '@/lib/types';
-import { normalizeEmail, normalizeName, typoDomainDistance, uniqnameFromEmail } from './normalize';
+import { normalizeEmail, normalizeMatchName, uniqnameFromEmail } from './normalize';
 
 /**
  * TS mirror of the `match_person` SQL ladder (spec §3.2) used for dry-run
@@ -8,7 +8,6 @@ import { normalizeEmail, normalizeName, typoDomainDistance, uniqnameFromEmail } 
 
 export const AUTO_LINK_THRESHOLD = 0.9;
 export const REVIEW_MIN_CONFIDENCE = 0.85;
-export const TRIGRAM_THRESHOLD = 0.6;
 
 export interface MatchInput {
   email?: string | null;
@@ -32,7 +31,7 @@ export interface PersonIndex {
   byEmail: Map<string, string>;
   byUniqname: Map<string, string>;
   byName: Map<string, string[]>;
-  names: { id: string; grams: Set<string> }[];
+  emailsByPerson: Map<string, Set<string>>;
   display: Map<string, string>;
 }
 
@@ -51,7 +50,7 @@ export function buildPersonIndex(people: readonly IndexPerson[]): PersonIndex {
     byEmail: new Map(),
     byUniqname: new Map(),
     byName: new Map(),
-    names: [],
+    emailsByPerson: new Map(),
     display: new Map(),
   };
   for (const person of people) addPersonToIndex(index, person);
@@ -68,18 +67,19 @@ export function buildPersonIndex(people: readonly IndexPerson[]): PersonIndex {
 export function addPersonToIndex(index: PersonIndex, person: IndexPerson): void {
   index.display.set(person.id, person.display);
   if (person.slackUserId) index.bySlack.set(person.slackUserId, person.id);
-  for (const email of person.emails ?? []) {
-    if (email) index.byEmail.set(normalizeEmail(email), person.id);
-  }
+  const emails = new Set((person.emails ?? [])
+    .filter((email): email is string => Boolean(email?.trim()))
+    .map(normalizeEmail));
+  index.emailsByPerson.set(person.id, emails);
+  for (const email of emails) index.byEmail.set(email, person.id);
   const uniqname =
     person.uniqname?.trim().toLowerCase() ??
     person.emails?.map((e) => (e ? uniqnameFromEmail(e) : null)).find(Boolean) ??
     null;
   if (uniqname) index.byUniqname.set(uniqname, person.id);
-  const name = person.name ? normalizeName(person.name) : '';
+  const name = person.name ? normalizeMatchName(person.name) : '';
   if (name !== '') {
     index.byName.set(name, [...(index.byName.get(name) ?? []), person.id]);
-    index.names.push({ id: person.id, grams: trigrams(name) });
   }
 }
 
@@ -87,7 +87,7 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
   const email = input.email?.trim() ? normalizeEmail(input.email) : null;
   const uniqname =
     input.uniqname?.trim().toLowerCase() || (email ? uniqnameFromEmail(email) : null);
-  const name = input.name ? normalizeName(input.name) : '';
+  const name = input.name ? normalizeMatchName(input.name) : '';
 
   const candidate = (id: string, confidence: number, reason: string): MatchCandidate => ({
     person_id: id,
@@ -129,84 +129,22 @@ export function matchPerson(input: MatchInput, candidatesSource: PersonIndex): M
     };
   }
 
-  // §4.8: a domain close to umich.edu means the local part is a uniqname candidate,
-  // at 0.85, meeting the manual-review minimum. Never rewrite the address.
-  const distance = email ? typoDomainDistance(email) : null;
-  if (email && distance !== null && distance > 0) {
-    const guess = uniqnameFromEmail(email.replace(/@.*$/, '@umich.edu'));
-    const hit = guess ? candidatesSource.byUniqname.get(guess) : undefined;
-    if (hit && 0.85 >= REVIEW_MIN_CONFIDENCE) {
-      return {
-        personId: null,
-        confidence: 0.85,
-        candidates: [candidate(hit, 0.85, 'typo_domain_uniqname')],
-        reason: 'typo_domain_uniqname',
-        isConflict: false,
-      };
-    }
-  }
-
-  // Weak name matches create a new person unless they meet the review minimum.
-  const exact = name === '' ? [] : candidatesSource.byName.get(name) ?? [];
-  if (exact.length === 1 && 0.7 >= REVIEW_MIN_CONFIDENCE) {
+  // Duplicate review requires the same full name AND two present, different
+  // emails. Similar names and typo domains alone are not evidence of a match.
+  // Exact identifiers above remain authoritative; names never auto-link.
+  const exact = email && name ? (candidatesSource.byName.get(name) ?? []).filter((id) => {
+    const known = candidatesSource.emailsByPerson.get(id);
+    return known && known.size > 0 && !known.has(email);
+  }).sort() : [];
+  if (exact.length > 0) {
     return {
       personId: null,
-      confidence: 0.7,
-      candidates: [candidate(exact[0]!, 0.7, 'name_exact')],
-      reason: 'name_exact',
+      confidence: REVIEW_MIN_CONFIDENCE,
+      candidates: exact.map((id) => candidate(id, REVIEW_MIN_CONFIDENCE, 'name_exact_email_different')),
+      reason: 'name_exact_email_different',
       isConflict: false,
     };
   }
 
-  if (name !== '') {
-    const grams = trigrams(name);
-    const similar = candidatesSource.names
-      .map((entry) => ({ id: entry.id, similarity: similarity(grams, entry.grams) }))
-      .filter((entry) => entry.similarity >= TRIGRAM_THRESHOLD)
-      .sort((a, b) => b.similarity - a.similarity)
-      .slice(0, 5)
-      .map((entry) => candidate(entry.id, trigramConfidence(entry.similarity), 'name_trigram'))
-      .filter((entry) => entry.confidence >= REVIEW_MIN_CONFIDENCE);
-    if (similar.length > 0) {
-      return {
-        personId: null,
-        confidence: similar[0]!.confidence,
-        candidates: similar,
-        reason: 'name_trigram',
-        isConflict: false,
-      };
-    }
-  }
-
   return { personId: null, confidence: 1, candidates: [], reason: 'new', isConflict: false };
-}
-
-/**
- * §3.2 rung 5. The SQL ladder is authoritative — it is what the commit runs — so
- * this reports the number it will: the similarity itself, capped at 0.69.
- * Name similarity alone falls below the 0.85 manual-review minimum.
- * Scaling it differently made the preview disagree with the review queue about
- * the same pair of people.
- */
-function trigramConfidence(similarity: number): number {
-  return Math.min(Math.round(similarity * 100) / 100, 0.69);
-}
-
-function trigrams(value: string): Set<string> {
-  const padded = `  ${value} `;
-  const out = new Set<string>();
-  for (let i = 0; i + 3 <= padded.length; i++) out.add(padded.slice(i, i + 3));
-  return out;
-}
-
-/**
- * pg_trgm's `similarity()` is Jaccard — shared / union. Dice (2*shared / a+b)
- * scores systematically higher, so at the same 0.6 threshold the preview flagged
- * three times as many rows as the commit actually sent to review.
- */
-function similarity(a: Set<string>, b: Set<string>): number {
-  if (a.size === 0 || b.size === 0) return 0;
-  let shared = 0;
-  for (const gram of a) if (b.has(gram)) shared++;
-  return shared / (a.size + b.size - shared);
 }
