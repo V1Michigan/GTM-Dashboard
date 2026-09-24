@@ -27,14 +27,14 @@ export default async function ExportPage() {
       />
 
       <div className="mb-[22px] grid max-w-[1000px] grid-cols-2 items-start gap-5">
-        <div className="card elev-sm items-start gap-3 px-5 py-[18px] shadow-[inset_0_0_0_1px_var(--color-accent-700)]">
+        <div className="card elev-sm items-start gap-3 px-5 py-[18px] shadow-[inset_0_0_0_1px_var(--color-accent-border)]">
           <span className="card-kicker">Recommended</span>
           <span className="card-title">Everything · all.zip</span>
-          <span className="card-body text-neutral-400 opacity-100">
+          <span className="card-body text-secondary opacity-100">
             {EXPORT_TABLES.length} table CSVs plus people_wide.csv. One row per person with joined
             columns and one column per event (registered / attended / both / none).
           </span>
-          <span className="font-mono text-[12px] text-neutral-500">
+          <span className="font-mono text-[12px] text-muted">
             v1-export-&lt;ISO timestamp&gt;.zip
           </span>
           <a className="btn btn-primary" href={ZIP_HREF} download>
@@ -45,10 +45,10 @@ export default async function ExportPage() {
         <div className="card elev-sm items-start gap-3 px-5 py-[18px]">
           <span className="card-kicker">Human-readable</span>
           <span className="card-title">people_wide.csv</span>
-          <span className="card-body text-neutral-400 opacity-100">
+          <span className="card-body text-secondary opacity-100">
             {PEOPLE_WIDE_COLUMNS.join(', ')}, evt_&lt;date&gt;_&lt;slug&gt; …
           </span>
-          <span className="text-[12px] text-neutral-500">
+          <span className="text-[12px] text-muted">
             {people.toLocaleString()} rows · {PEOPLE_WIDE_COLUMNS.length + events} columns
           </span>
           <a className="btn btn-secondary" href={csvHref('people_wide')} download>
@@ -58,7 +58,7 @@ export default async function ExportPage() {
       </div>
 
       <div className="flex max-w-[1000px] flex-col gap-[10px]">
-        <h2 className="text-[14px]">Individual tables</h2>
+        <h2 className="font-sans text-[14px] font-semibold">Individual tables</h2>
         <table className="table table-dense">
           <thead>
             <tr><th>Table</th><th className="num">Rows</th><th>Description</th><th /></tr>
@@ -68,7 +68,7 @@ export default async function ExportPage() {
               <tr key={table}>
                 <td className="font-mono text-[12.5px]">{table}</td>
                 <td className="num">{(counts[table] ?? 0).toLocaleString()}</td>
-                <td className="text-neutral-400">{description}</td>
+                <td className="text-secondary">{description}</td>
                 <td className="num">
                   <a className="text-[12px] no-underline" href={csvHref(table)} download>Download CSV</a>
                 </td>

@@ -22,8 +22,8 @@ export function StatusTag({ status }: { status: ImportStatus }) {
 }
 
 const num = (v: number | null, accent = false) =>
-  v === null ? <span className="text-neutral-600">—</span>
-    : <span className={accent && v > 0 ? 'text-accent-300' : undefined}>{v}</span>;
+  v === null ? <span className="text-muted">—</span>
+    : <span className={accent && v > 0 ? 'text-accent-text' : undefined}>{v}</span>;
 
 export function ImportsTable({ rows }: { rows: ImportListRow[] }) {
   const [filter, setFilter] = useState<'all' | 'needs_review' | 'failed'>('all');
@@ -44,7 +44,7 @@ export function ImportsTable({ rows }: { rows: ImportListRow[] }) {
   const columns: ColumnDef<ImportListRow, unknown>[] = [
     {
       accessorKey: 'created_at', header: 'Date',
-      cell: ({ row }) => <span className="text-neutral-400">{fmtDateTime(row.original.created_at)}</span>,
+      cell: ({ row }) => <span className="text-secondary">{fmtDateTime(row.original.created_at)}</span>,
     },
     { accessorFn: (r) => KIND_LABEL[r.kind], id: 'kind', header: 'Kind' },
     {
@@ -56,7 +56,7 @@ export function ImportsTable({ rows }: { rows: ImportListRow[] }) {
     {
       accessorKey: 'file_name', header: 'File',
       cell: ({ row }) => (
-        <span className="block max-w-[220px] truncate text-neutral-400" title={row.original.file_name ?? ''}>
+        <span className="block max-w-[220px] truncate text-secondary" title={row.original.file_name ?? ''}>
           <Empty value={row.original.file_name} />
         </span>
       ),
@@ -95,7 +95,7 @@ export function ImportsTable({ rows }: { rows: ImportListRow[] }) {
       </div>
       <DataTable
         data={data} columns={columns} rowHref={(r) => `/imports/${r.id}`}
-        empty={<p className="text-[13px] text-neutral-500">No imports match this filter.</p>}
+        empty={<p className="text-[13px] text-muted">No imports match this filter.</p>}
       />
     </div>
   );

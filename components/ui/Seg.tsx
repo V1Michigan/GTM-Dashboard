@@ -14,7 +14,7 @@ export function Seg<T extends string>(
             checked={value === o.value} onChange={() => onChange(o.value)}
           />
           {o.label}
-          {o.count !== undefined && <span className="text-neutral-500">{o.count}</span>}
+          {o.count !== undefined && <span className="text-muted">{o.count}</span>}
         </label>
       ))}
     </div>

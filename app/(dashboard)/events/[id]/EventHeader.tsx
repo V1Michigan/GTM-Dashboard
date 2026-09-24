@@ -14,7 +14,7 @@ export function EventHeader({ event }: { event: EventRow }) {
     <div className="flex items-start justify-between gap-6">
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="m-0 text-[26px]">{event.name}</h1>
+          <h1 className="m-0 text-[36px]">{event.name}</h1>
           {event.event_type && <Tag tone="neutral">{event.event_type}</Tag>}
         </div>
 
@@ -50,7 +50,7 @@ function ReadOnlyId({ label, value }: { label: string; value: string | null }) {
     <div>
       <div className="label-kicker">{label}</div>
       <div className="mt-1 font-mono text-[12px]">
-        {value ?? <span className="text-neutral-600">not linked</span>}
+        {value ?? <span className="text-muted">not linked</span>}
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import * as RD from '@radix-ui/react-dialog';
 import type { ReactNode } from 'react';
 
 /**
- * Radix Dialog wearing Nocturne's `.dialog` classes. Destructive confirmations
+ * Radix Dialog using the V1 design system's `.dialog` classes. Destructive confirmations
  * start with their action disabled; that is the caller's job.
  */
 export function Dialog(

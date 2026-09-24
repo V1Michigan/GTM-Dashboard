@@ -49,29 +49,29 @@ export function RowsTable({ rows }: { rows: ImportRowWithPerson[] }) {
   const data = useMemo(() => rows.filter(FILTERS[filter]), [rows, filter]);
 
   const columns: ColumnDef<ImportRowWithPerson, unknown>[] = [
-    { accessorKey: 'row_index', header: '#', cell: ({ row }) => <span className="text-neutral-500">{row.original.row_index}</span> },
+    { accessorKey: 'row_index', header: '#', cell: ({ row }) => <span className="text-muted">{row.original.row_index}</span> },
     { id: 'name', header: 'Name', accessorFn: (r) => nameOf(r) ?? '', cell: ({ getValue }) => <Empty value={getValue<string>()} /> },
     {
       id: 'email', header: 'Email', accessorFn: (r) => pick(r, ['email']) ?? '',
-      cell: ({ getValue }) => <span className="text-neutral-400"><Empty value={getValue<string>()} /></span>,
+      cell: ({ getValue }) => <span className="text-secondary"><Empty value={getValue<string>()} /></span>,
     },
     {
       id: 'person', header: 'Matched person',
       accessorFn: (r) => [r.person?.first_name, r.person?.last_name].filter(Boolean).join(' '),
       cell: ({ row, getValue }) => (row.original.person
         ? <Link href={`/people/${row.original.person.id}`} className="no-underline">{getValue<string>()}</Link>
-        : <span className="text-neutral-600">—</span>),
+        : <span className="text-muted">—</span>),
     },
     {
       accessorKey: 'match_confidence', header: 'Confidence', meta: { numeric: true },
       cell: ({ row }) => (row.original.match_confidence === null
-        ? <span className="text-neutral-600">—</span>
+        ? <span className="text-muted">—</span>
         : Number(row.original.match_confidence).toFixed(2)),
     },
     { id: 'status', header: 'Status', accessorKey: 'status', cell: ({ row }) => <StatusCell row={row.original} /> },
     {
       accessorKey: 'error', header: 'Error / note',
-      cell: ({ row }) => <span className="text-neutral-500"><Empty value={row.original.error} /></span>,
+      cell: ({ row }) => <span className="text-muted"><Empty value={row.original.error} /></span>,
     },
   ];
 
@@ -97,7 +97,7 @@ export function RowsTable({ rows }: { rows: ImportRowWithPerson[] }) {
       </div>
       <DataTable
         data={data} columns={columns} globalFilter={search}
-        empty={<p className="text-[13px] text-neutral-500">No rows match this filter.</p>}
+        empty={<p className="text-[13px] text-muted">No rows match this filter.</p>}
       />
     </div>
   );

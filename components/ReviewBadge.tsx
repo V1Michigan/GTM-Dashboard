@@ -7,7 +7,7 @@ export async function ReviewBadge() {
 
   return (
     <span
-      className="rounded-[6px] bg-accent-800 px-[7px] py-px text-[11px] text-accent-100"
+      className="rounded-[6px] bg-accent px-[7px] py-px text-[11px] text-accent-foreground"
       aria-label={`${count} open review ${count === 1 ? 'item' : 'items'}`}
     >
       {count}

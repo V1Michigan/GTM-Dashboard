@@ -10,7 +10,7 @@ import { RowsTable, type ImportRowWithPerson } from './RowsTable';
 
 function Count({ label, value, accent }: { label: string; value: React.ReactNode; accent?: boolean }) {
   return (
-    <div className={`card elev-sm gap-[2px] px-[14px] py-3 ${accent ? 'shadow-[0_0_0_1px_var(--color-accent-700)]' : ''}`}>
+    <div className={`card elev-sm gap-[2px] px-[14px] py-3 ${accent ? 'shadow-[0_0_0_1px_var(--color-accent-border)]' : ''}`}>
       <span className="card-kicker">{label}</span>
       <span className="text-[22px] font-medium">{value}</span>
     </div>
@@ -47,20 +47,20 @@ export default async function ImportDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="text-[12.5px] text-neutral-500">
-        <Link href="/imports" className="text-neutral-400 no-underline">Imports</Link> / {fmtDateTime(record.created_at)}
+      <div className="text-[12.5px] text-muted">
+        <Link href="/imports" className="text-secondary no-underline">Imports</Link> / {fmtDateTime(record.created_at)}
       </div>
 
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <h1 className="text-[24px]">
+            <h1 className="text-[36px]">
               {KIND_LABEL[record.kind]}
               {record.event ? ` · ${record.event.name}` : ''}
             </h1>
             <StatusTag status={record.status} />
           </div>
-          <div className="text-[13px] text-neutral-400">
+          <div className="text-[13px] text-secondary">
             {[
               record.file_name,
               record.source,
@@ -96,7 +96,7 @@ export default async function ImportDetailPage({ params }: { params: Promise<{ i
         <Count label="Review" value={record.rows_review ?? 0} accent />
         <Count
           label="Failed / skipped"
-          value={<>{failed} <span className="text-[14px] text-neutral-500">/ {skipped}</span></>}
+          value={<>{failed} <span className="text-[14px] text-muted">/ {skipped}</span></>}
         />
       </div>
 

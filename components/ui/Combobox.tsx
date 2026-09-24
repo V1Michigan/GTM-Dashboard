@@ -27,7 +27,7 @@ export function Combobox({
     <RP.Root open={open} onOpenChange={setOpen}>
       <RP.Trigger asChild>
         <button type="button" className="input min-h-[44px] text-left">
-          {selected ? selected.label : <span className="text-neutral-500">{placeholder}</span>}
+          {selected ? selected.label : <span className="text-muted">{placeholder}</span>}
         </button>
       </RP.Trigger>
       <RP.Portal>
@@ -38,22 +38,22 @@ export function Combobox({
               placeholder={placeholder} className="input mb-1"
             />
             <Command.List className="max-h-64 overflow-y-auto">
-              <Command.Empty className="px-2 py-3 text-[12px] text-neutral-500">No match</Command.Empty>
+              <Command.Empty className="px-2 py-3 text-[12px] text-muted">No match</Command.Empty>
               {options.map((o) => (
                 <Command.Item
                   key={o.value} value={`${o.label} ${o.hint ?? ''}`}
                   onSelect={() => { onChange(o.value); setOpen(false); }}
-                  className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-sm px-2 text-[13px] data-[selected=true]:bg-accent-900 data-[selected=true]:text-accent-300"
+                  className="flex min-h-[44px] cursor-pointer items-center justify-between gap-3 rounded-sm px-2 text-[13px] data-[selected=true]:bg-accent-subtle data-[selected=true]:text-accent-text"
                 >
                   <span>{o.label}</span>
-                  {o.hint && <span className="text-[11px] text-neutral-500">{o.hint}</span>}
+                  {o.hint && <span className="text-[11px] text-muted">{o.hint}</span>}
                 </Command.Item>
               ))}
               {onCreate && query.trim() !== '' && (
                 <Command.Item
                   value={`__create__${query}`} forceMount
                   onSelect={() => { onCreate(query.trim()); setOpen(false); }}
-                  className="flex min-h-[44px] cursor-pointer items-center rounded-sm px-2 text-[13px] text-accent data-[selected=true]:bg-accent-900"
+                  className="flex min-h-[44px] cursor-pointer items-center rounded-sm px-2 text-[13px] text-accent-text data-[selected=true]:bg-accent-subtle"
                 >
                   {createLabel ? createLabel(query.trim()) : `+ Add “${query.trim()}”`}
                 </Command.Item>

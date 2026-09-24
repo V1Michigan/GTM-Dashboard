@@ -30,8 +30,8 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="text-[12.5px] text-neutral-500">
-        <Link href="/events" className="text-neutral-400 no-underline">Events</Link> / {event.name}
+      <div className="text-[12.5px] text-muted">
+        <Link href="/events" className="text-secondary no-underline">Events</Link> / {event.name}
       </div>
 
       <EventHeader event={event} />
@@ -49,7 +49,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
         <Section title="Import history">
           {imports.length === 0 ? (
-            <div className="rounded-md border border-dashed border-neutral-700 p-[14px] text-[13px] text-neutral-500">
+            <div className="rounded-md border border-dashed border-input-border p-[14px] text-[13px] text-muted">
               No imports for this event yet.
             </div>
           ) : (
@@ -63,7 +63,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                     <span>{title(r.kind)}</span>
                     <Tag tone={STATUS_TONE[r.status]}>{r.status.replaceAll('_', ' ')}</Tag>
                   </div>
-                  <span className="text-neutral-500">{fmtStamp(r.created_at)} · {counts(r)}</span>
+                  <span className="text-muted">{fmtStamp(r.created_at)} · {counts(r)}</span>
                   {r.file_name && (
                     <Link href={`/imports/${r.id}`} className="text-[12px]">{r.file_name}</Link>
                   )}

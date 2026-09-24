@@ -39,7 +39,7 @@ export function DeleteDialog(
     <Dialog
       title={`Delete ${name}?`}
       trigger={
-        <button type="button" className="btn btn-ghost w-full" style={{ color: 'var(--color-neutral-400)' }}>
+        <button type="button" className="btn btn-ghost w-full" style={{ color: 'var(--color-secondary)' }}>
           Delete person
         </button>
       }
@@ -59,7 +59,7 @@ export function DeleteDialog(
           {plural(cascades.applications, 'Product Studio application')}, {plural(cascades.chats, 'coffee chat')} and{' '}
           {plural(cascades.slack, 'Slack activity row')}. It cannot be undone.
         </p>
-        <p className="m-0 text-neutral-400">
+        <p className="m-0 text-secondary">
           If this is a duplicate, use Merge instead so the history is kept.
         </p>
         <Field label={`Type ${confirmWord === 'delete' ? 'delete' : 'the last name'} to confirm`}>

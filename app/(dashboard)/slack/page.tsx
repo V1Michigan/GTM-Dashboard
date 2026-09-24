@@ -36,9 +36,9 @@ export default async function SlackPage() {
 
       <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-6">
         <div className="flex flex-col gap-[10px]">
-          <h2 className="text-[14px]">Channels</h2>
+          <h2 className="font-sans text-[14px] font-semibold">Channels</h2>
           <ChannelsTable channels={channels} />
-          <p className="m-0 text-[12px] text-neutral-500">
+          <p className="m-0 text-[12px] text-muted">
             Counts are daily aggregates per person and channel. Message text is never received,
             logged or stored.
           </p>
@@ -47,8 +47,8 @@ export default async function SlackPage() {
         <div className="flex flex-col gap-4">
           <section className="card elev-sm gap-[10px] px-[18px] py-4">
             <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-[14px]">Members not in Slack</h2>
-              <span className="text-[12px] text-neutral-500">
+              <h2 className="font-sans text-[14px] font-semibold">Members not in Slack</h2>
+              <span className="text-[12px] text-muted">
                 {notInSlack.length} of {stats?.members ?? 0}
               </span>
             </div>
@@ -64,15 +64,15 @@ export default async function SlackPage() {
                   </tr>
                 ))}
                 {notInSlack.length === 0 && (
-                  <tr><td className="text-neutral-500">Every member is in Slack.</td></tr>
+                  <tr><td className="text-muted">Every member is in Slack.</td></tr>
                 )}
               </tbody>
             </table>
           </section>
 
           <section className="card elev-sm items-start gap-[10px] px-[18px] py-4">
-            <h2 className="text-[14px]">Unmatched Slack users</h2>
-            <p className="m-0 text-[13px] text-neutral-400">
+            <h2 className="font-sans text-[14px] font-semibold">Unmatched Slack users</h2>
+            <p className="m-0 text-[13px] text-secondary">
               {unmatched.length} Slack account{unmatched.length === 1 ? ' has' : 's have'} no linked
               person. {withEmail} carr{withEmail === 1 ? 'ies' : 'y'} an email address the match
               ladder could not place; the rest are waiting on a review decision.

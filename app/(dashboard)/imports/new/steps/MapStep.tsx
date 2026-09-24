@@ -62,13 +62,13 @@ export function MapStep({
     <div className="flex max-w-[900px] flex-col gap-[18px]">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="mb-1 text-[17px]">Map columns</h2>
-          <p className="m-0 text-[13px] text-neutral-400">
+          <h2 className="font-sans font-semibold mb-1 text-[17px]">Map columns</h2>
+          <p className="m-0 text-[13px] text-secondary">
             {mapped} of {preview.headers.length} columns mapped; unmapped columns are kept under their
             original label in {answers}.
           </p>
         </div>
-        <label className="flex shrink-0 items-center gap-2 text-[12.5px] text-neutral-300">
+        <label className="flex shrink-0 items-center gap-2 text-[12.5px] text-text">
           <input type="checkbox" checked={saveMapping} onChange={(e) => setSaveMapping(e.target.checked)} />
           Save as default for this kind
         </label>
@@ -90,8 +90,8 @@ export function MapStep({
               return (
                 <tr key={header}>
                   <td>{header}</td>
-                  <td className="text-neutral-500">{sample(header)}</td>
-                  <td className="text-neutral-600" aria-hidden>→</td>
+                  <td className="text-muted">{sample(header)}</td>
+                  <td className="text-muted" aria-hidden>→</td>
                   <td>
                     <div className="flex items-center gap-2">
                       <select
@@ -102,8 +102,8 @@ export function MapStep({
                         <option value="">{answers} (keep label)</option>
                         {fields.map((f) => <option key={f} value={f}>{LABEL[f] ?? f}</option>)}
                       </select>
-                      {field === 'gender' && <span className="text-[11px] text-accent-300">sensitive</span>}
-                      {HINT[field] && <span className="text-[11px] text-neutral-500">{HINT[field]}</span>}
+                      {field === 'gender' && <span className="text-[11px] text-accent-text">sensitive</span>}
+                      {HINT[field] && <span className="text-[11px] text-muted">{HINT[field]}</span>}
                     </div>
                   </td>
                 </tr>
@@ -113,7 +113,7 @@ export function MapStep({
         </table>
       </div>
 
-      <p className="m-0 rounded-md bg-surface px-3 py-[10px] text-[12px] text-neutral-500">
+      <p className="m-0 rounded-md bg-surface px-3 py-[10px] text-[12px] text-muted">
         Several CSV columns may map to one field (e.g. <code>Grade</code> and <code>Grade (2)</code> on the
         interest form); the first non-empty value in column order wins.
       </p>

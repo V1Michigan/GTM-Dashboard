@@ -1,6 +1,6 @@
 /**
- * The overview's two charts. Plain CSS bars, no charting library: a neutral-800
- * track, a neutral-500 fill, the accent on the highlighted value only, and a
+ * The overview's two charts. Plain CSS bars, no charting library: a warm neutral
+ * track, a charcoal fill, a darker gold on the highlighted value only, and a
  * dashed outline with no fill for something that has not happened yet.
  */
 export interface Bar {
@@ -26,13 +26,13 @@ export function BarChart({ bars, layout }: { bars: Bar[]; layout: 'columns' | 'r
         {bars.map((b) => (
           <div key={b.label} className="grid grid-cols-[110px_1fr_44px] items-center gap-3">
             <span className="truncate">{b.label}</span>
-            <div className="h-[14px] rounded-[3px] bg-neutral-800">
+            <div className="h-[14px] rounded-[3px] bg-surface-muted">
               <div
-                className={`h-full rounded-[3px] ${b.highlight ? 'bg-accent-500' : 'bg-neutral-500'}`}
+                className={`h-full rounded-[3px] ${b.highlight ? 'bg-chart-highlight' : 'bg-chart-fill'}`}
                 style={{ width: `${pct(b.value, max)}%` }}
               />
             </div>
-            <span className="text-right text-neutral-300">{b.value.toLocaleString()}</span>
+            <span className="text-right text-text">{b.value.toLocaleString()}</span>
           </div>
         ))}
       </div>
@@ -47,17 +47,17 @@ export function BarChart({ bars, layout }: { bars: Bar[]; layout: 'columns' | 'r
           <div key={b.label} className="flex h-full flex-col justify-end">
             {b.pending ? (
               <div
-                className="rounded-t-[3px] border border-b-0 border-dashed border-neutral-700"
+                className="rounded-t-[3px] border border-b-0 border-dashed border-input-border"
                 style={{ height: `${pct(b.track ?? b.value, max)}%` }}
               />
             ) : (
               <div
-                className="relative rounded-t-[3px] bg-neutral-800"
+                className="relative rounded-t-[3px] bg-surface-muted"
                 style={{ height: `${pct(b.track ?? b.value, max)}%` }}
               >
                 <div
                   className={`absolute inset-x-0 bottom-0 rounded-t-[3px] ${
-                    b.highlight ? 'bg-accent-500' : 'bg-neutral-500'
+                    b.highlight ? 'bg-chart-highlight' : 'bg-chart-fill'
                   }`}
                   style={{ height: `${pct(b.value, b.track ?? b.value)}%` }}
                 />
@@ -66,12 +66,12 @@ export function BarChart({ bars, layout }: { bars: Bar[]; layout: 'columns' | 'r
           </div>
         ))}
       </div>
-      <div className="grid gap-[18px] px-[6px] text-center text-[11px] text-neutral-500" style={columns}>
+      <div className="grid gap-[18px] px-[6px] text-center text-[11px] text-muted" style={columns}>
         {bars.map((b) => (
           <span key={b.label} className="truncate">
             {b.label}
             <br />
-            <span className="text-neutral-300">{b.note ?? b.value}</span>
+            <span className="text-text">{b.note ?? b.value}</span>
           </span>
         ))}
       </div>

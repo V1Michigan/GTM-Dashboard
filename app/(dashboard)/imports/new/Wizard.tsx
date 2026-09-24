@@ -112,11 +112,11 @@ export function Wizard({ events, mappings, initialKind, initialEventId }: {
 
   return (
     <div className="flex flex-col gap-[22px]">
-      <div className="text-[12.5px] text-neutral-500">
-        <Link href="/imports" className="text-neutral-400 no-underline">Imports</Link> / New import
+      <div className="text-[12.5px] text-muted">
+        <Link href="/imports" className="text-secondary no-underline">Imports</Link> / New import
       </div>
       <div className="flex items-center gap-3">
-        <h1 className="text-[24px]">New import</h1>
+        <h1 className="text-[36px]">New import</h1>
         {context && <Tag tone="neutral">{context}</Tag>}
       </div>
 
@@ -131,12 +131,12 @@ export function Wizard({ events, mappings, initialKind, initialEventId }: {
                 key={label}
                 aria-current={current ? 'step' : undefined}
                 className={`flex items-center gap-[10px] ${
-                  current ? 'text-accent-300' : done ? 'text-neutral-300' : 'text-neutral-500'}`}
+                  current ? 'text-accent-text' : done ? 'text-text' : 'text-muted'}`}
               >
                 <span
                   className={`grid size-[22px] place-items-center rounded-full text-[11px] ${
-                    done ? 'bg-accent-800 text-accent-200'
-                      : current ? 'border border-accent' : 'border border-neutral-700'}`}
+                    done ? 'bg-accent text-accent-foreground'
+                      : current ? 'border border-accent-border' : 'border border-input-border'}`}
                 >
                   {done ? <Check size={11} weight="bold" /> : n}
                 </span>
@@ -153,7 +153,7 @@ export function Wizard({ events, mappings, initialKind, initialEventId }: {
               {error.importId && (
                 <>
                   {' '}
-                  <Link href={`/imports/${error.importId}`} className="text-accent-300">Open that import</Link>.
+                  <Link href={`/imports/${error.importId}`} className="text-accent-text">Open that import</Link>.
                 </>
               )}
             </div>

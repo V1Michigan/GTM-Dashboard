@@ -1,0 +1,202 @@
+/* V1 design system, extracted from V1Website.
+   Sources: tailwind.config.ts; app/globals.css; components/header.tsx,
+   founder-card.tsx, project-modal.tsx, hero-section.tsx; app/people/page.tsx.
+   See docs/design-system.md for provenance, roles, and contrast decisions. */
+
+@layer base {
+  :root {
+    color-scheme: light;
+
+    /* Website brand palette. Keep these literal values in one place. */
+    --v1-cream: #faf7f2;
+    --v1-paper: #fef9f5;
+    --v1-white: #ffffff;
+    --v1-ink: #1a1a1a;
+    --v1-charcoal: #444444;
+    --v1-gold: #e9b872;
+    --v1-gold-hover: #e5ad5f;
+    --v1-yellow: #fde047;
+
+    /* Semantic roles. Gold fills use dark text; links and focus rings need
+       a darker gold to remain legible against the website's light surfaces. */
+    --color-bg: var(--v1-cream);
+    --color-surface: var(--v1-white);
+    --color-surface-muted: #f0ebe3;
+    --color-text: var(--v1-ink);
+    --color-secondary: var(--v1-charcoal);
+    --color-muted: #686159;
+    --color-divider: #e2ddd5;
+    --color-input-border: #978c7e;
+    --color-accent: var(--v1-gold);
+    --color-accent-hover: var(--v1-gold-hover);
+    --color-accent-foreground: var(--v1-ink);
+    --color-accent-text: #80551f;
+    --color-accent-subtle: #f8ecd9;
+    --color-accent-border: #a77936;
+    --color-focus: var(--color-accent-text);
+    --color-action: var(--v1-ink);
+    --color-action-hover: var(--v1-charcoal);
+    --color-on-action: var(--v1-white);
+    --color-chart-fill: #777168;
+    --color-chart-highlight: #a4722a;
+    --color-overlay: rgb(26 26 26 / 40%);
+
+    --font-heading: "Instrument Serif", Georgia, serif;
+    --font-body: "Inter", system-ui, sans-serif;
+
+    /* Retain the dashboard's compact data density. */
+    --space-1: 2.8px;
+    --space-2: 5.6px;
+    --space-3: 8.4px;
+    --space-4: 11.2px;
+    --space-6: 16.8px;
+    --space-8: 22.4px;
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 12px;
+
+    --shadow-sm: 0 0 0 1px var(--color-divider), 0 1px 2px rgb(26 26 26 / 3%);
+    --shadow-md: 0 0 0 1px var(--color-divider), 0 6px 18px rgb(26 26 26 / 8%);
+    --shadow-lg: 0 0 0 1px var(--color-divider), 0 16px 40px rgb(26 26 26 / 14%);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--color-bg); color: var(--color-text);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55; font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-body); font-weight: 500;
+    line-height: 1.15; letter-spacing: -0.015em; margin: 0 0 var(--space-2);
+  }
+  h1, h2 { font-family: var(--font-heading); font-weight: 400; color: var(--color-secondary); }
+  h1 { font-size: 42px; }
+  h2 { font-size: 32px; }
+  h3 { font-size: 25px; }
+  h4 { font-size: 20px; }
+  h5 { font-size: 16px; }
+  h6 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+  p { margin: 0 0 var(--space-3); }
+  a { color: var(--color-accent-text); text-underline-offset: 3px; }
+  img { display: block; max-width: 100%; }
+  figure { margin: 0; }
+  figcaption { font-size: 11px; margin-top: var(--space-1); color: var(--color-muted); }
+  :focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+  ::selection { background: var(--v1-yellow); color: var(--v1-ink); }
+  input, select, textarea { accent-color: var(--color-accent-text); }
+}
+
+/* Components live in a layer so Tailwind utilities can intentionally override
+   spacing, font size, and state styles on individual dashboard screens. */
+@layer components {
+  .text-muted { color: var(--color-muted); }
+  .hr { height: 1px; border: 0; margin: var(--space-4) 0; background: var(--color-divider); }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    min-height: 36px; cursor: pointer; text-decoration: none;
+    font-family: var(--font-body); font-weight: 500; font-size: 13px; line-height: 1.2;
+    color: var(--color-text); background: transparent; border: 1px solid transparent;
+    padding: 8px 12px; border-radius: var(--radius-md);
+    transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  }
+  .btn svg { display: block; flex-shrink: 0; }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .btn-primary {
+    color: var(--color-on-action); background: var(--color-action); border-color: var(--color-action);
+  }
+  .btn-primary:hover:not(:disabled) { background: var(--color-action-hover); border-color: var(--color-action-hover); }
+  .btn-primary:active:not(:disabled) { background: var(--color-action); }
+  .btn-secondary { background: var(--color-surface); border-color: var(--color-input-border); }
+  .btn-secondary:hover:not(:disabled) { background: var(--color-surface-muted); }
+  .btn-secondary:active:not(:disabled) { background: var(--color-divider); }
+  .btn-ghost { color: var(--color-accent-text); padding-inline: var(--space-2); }
+  .btn-ghost:hover:not(:disabled) { background: var(--color-accent-subtle); }
+  .btn-ghost:active:not(:disabled) { background: var(--color-accent); color: var(--color-accent-foreground); }
+  .btn-icon { width: 36px; height: 36px; padding: 0; }
+  .btn-block { width: 100%; margin-top: var(--space-2); }
+
+  .field > label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; color: var(--color-secondary); }
+  .input {
+    width: 100%; min-height: 36px; padding: 7px 10px; font: inherit; font-size: 14px;
+    color: var(--color-text); caret-color: var(--color-accent-text); background: var(--color-surface);
+    border: 1px solid var(--color-input-border); border-radius: var(--radius-md);
+  }
+  .input::placeholder { color: var(--color-muted); opacity: 1; }
+  .input:hover { border-color: var(--color-secondary); }
+  .input:focus-visible { border-color: var(--color-focus); outline-offset: 2px; }
+  .input:disabled { background: var(--color-surface-muted); cursor: not-allowed; }
+  textarea.input { min-height: 90px; resize: vertical; }
+  .radio { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+  .radio input, .seg-opt input { position: absolute; opacity: 0; width: 0; height: 0; pointer-events: none; }
+  .radio .dot { width: 16px; height: 16px; flex: none; border-radius: 50%; border: 1.5px solid var(--color-input-border); }
+  .radio:hover .dot { border-color: var(--color-accent-text); }
+  .radio input:checked + .dot {
+    border-color: var(--color-accent-text); background: var(--color-accent-text);
+    box-shadow: inset 0 0 0 4px var(--color-surface);
+  }
+  .radio input:focus-visible + .dot { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+  .seg { display: inline-flex; overflow: hidden; background: var(--color-surface); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); }
+  .seg-opt { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
+  .seg-opt + .seg-opt { border-left: 1px solid var(--color-divider); }
+  .seg-opt:has(input:checked) { background: var(--color-accent-subtle); color: var(--color-accent-text); box-shadow: inset 0 -2px var(--color-accent-text); }
+  .seg-opt:not(:has(input:checked)):hover { background: var(--color-surface-muted); }
+  .seg-opt:has(input:focus-visible) { outline: 2px solid var(--color-focus); outline-offset: -3px; }
+
+  .card {
+    display: flex; flex-direction: column; gap: var(--space-2);
+    padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-surface);
+  }
+  .card-kicker { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-muted); }
+  .card-title { font-family: var(--font-body); font-weight: 500; font-size: 17px; line-height: 1.2; }
+  .card-body { margin: 0; font-size: 13px; color: var(--color-secondary); flex: 1; }
+  .card-meta { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-muted); }
+  .elev-sm { box-shadow: var(--shadow-sm); }
+  .elev-md { box-shadow: var(--shadow-md); }
+  .elev-lg { box-shadow: var(--shadow-lg); }
+
+  .tag { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; letter-spacing: 0.02em; padding: 3px 10px; border-radius: 999px; }
+  .tag-accent { background: var(--color-accent); color: var(--color-accent-foreground); }
+  .tag-neutral { background: var(--color-surface-muted); color: var(--color-secondary); }
+  .tag-outline { border: 1px solid var(--color-accent-border); background: var(--color-accent-subtle); color: var(--color-accent-text); }
+
+  .nav { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); }
+  .nav-brand { font-family: var(--font-heading); font-size: 24px; margin-right: auto; }
+  .nav a { color: inherit; text-decoration: none; font-size: 14px; }
+  .nav a:hover, .nav a[aria-current='page'] { color: var(--color-accent-text); }
+
+  .table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .table th {
+    text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--color-muted); padding: 10px var(--space-2); border-bottom: 1px solid var(--color-divider);
+  }
+  .table td { padding: var(--space-2); border-bottom: 1px solid var(--color-divider); }
+  .table tbody tr:hover { background: var(--color-accent-subtle); }
+  .table tbody tr:last-child td { border-bottom: 0; }
+
+  .dialog-backdrop { position: fixed; inset: 0; display: grid; place-items: center; padding: var(--space-4); background: var(--color-overlay); }
+  .dialog {
+    width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow-y: auto;
+    display: flex; flex-direction: column; gap: var(--space-3); padding: 24px;
+    border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-lg);
+  }
+  .dialog-title { font-family: var(--font-heading); font-weight: 400; color: var(--color-secondary); font-size: 28px; }
+  .dialog-body { font-size: 14px; color: var(--color-secondary); }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-2); }
+
+  .table-dense { font-size: 13px; }
+  .table-dense th { white-space: nowrap; }
+  .table-dense td { padding-block: 8px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .row-link { cursor: pointer; }
+  .row-link:focus-visible { outline: 2px solid var(--color-focus); outline-offset: -2px; }
+  .editable { border-bottom: 1px dashed var(--color-input-border); cursor: text; }
+  .editable:hover { border-bottom-color: var(--color-accent-text); }
+  .notice { background: var(--v1-paper); border: 1px solid var(--color-input-border); border-radius: var(--radius-md); padding: var(--space-4); font-size: 13px; }
+  .label-kicker { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-muted); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn { transition: none; }
+}

@@ -109,9 +109,9 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
       <>
         <PageHeader title="Review queue" subtitle="0 open" />
         <div className="card elev-sm max-w-[560px] items-start gap-3 p-12">
-          <CheckCircle size={28} className="text-accent" />
+          <CheckCircle size={28} className="text-accent-text" />
           <h2 className="m-0 text-[18px]">Queue is clear</h2>
-          <p className="m-0 text-[14px] text-neutral-400">
+          <p className="m-0 text-[14px] text-secondary">
             Every import row and Slack user has been matched. New items appear here when an import,
             webhook or Slack event can&rsquo;t be linked with confidence.
           </p>
@@ -160,8 +160,8 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
             ...ORDER.filter((k) => counts[k]).map((k) => ({ value: k, label: KIND_LABEL[k], count: counts[k] })),
           ]}
         />
-        <span className="text-[12px] text-neutral-500">{position} of {remaining.length}</span>
-        <div className="h-[3px] w-[160px] overflow-hidden rounded-full bg-neutral-800" aria-hidden>
+        <span className="text-[12px] text-muted">{position} of {remaining.length}</span>
+        <div className="h-[3px] w-[160px] overflow-hidden rounded-full bg-surface-muted" aria-hidden>
           <div
             className="h-full bg-accent transition-[width] duration-200"
             style={{ width: `${(position / Math.max(remaining.length, 1)) * 100}%` }}
@@ -179,16 +179,16 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
 
       <article
         key={item.id}
-        className="card elev-md max-w-[980px] gap-0 p-0 shadow-[0_0_0_1px_var(--color-accent-700)]"
+        className="card elev-md max-w-[980px] gap-0 p-0 shadow-[0_0_0_1px_var(--color-accent-border)]"
       >
         <header className="flex flex-wrap items-center gap-3 border-b border-divider px-6 py-4">
           <Tag tone={item.kind === 'field_conflict' || item.kind === 'bad_row' ? 'neutral' : 'outline'}>
             {KIND_LABEL[item.kind]}
           </Tag>
           <span className="text-[17px]">{nameOf(payload) ?? 'Unknown'}</span>
-          {str(payload.email) && <span className="text-[13px] text-neutral-400">{str(payload.email)}</span>}
+          {str(payload.email) && <span className="text-[13px] text-secondary">{str(payload.email)}</span>}
           {item.slack_user_id && <Tag tone="neutral">slack</Tag>}
-          <span className="ml-auto text-[12px] text-neutral-500">{fmtDateTime(item.created_at)}</span>
+          <span className="ml-auto text-[12px] text-muted">{fmtDateTime(item.created_at)}</span>
         </header>
 
         {item.kind === 'field_conflict' ? (
@@ -203,7 +203,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   .filter(([key]) => !key.startsWith('_'))
                   .map(([key, value]) => [key.replace(/_/g, ' '), str(value)])}
               />
-              <p className="m-0 text-[12px] text-neutral-500">
+              <p className="m-0 text-[12px] text-muted">
                 {legacySuggestion
                   ? 'This suggestion was saved under earlier matching rules and has not been re-evaluated.'
                   : str(payload.reason) ?? WHY[item.kind]} The email is stored as typed: linking adds it
@@ -214,7 +214,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
             <div className="flex flex-col gap-3 px-6 py-5">
               <span className="label-kicker">Candidates</span>
               {item.candidates.length === 0 && (
-                <p className="m-0 text-[13px] text-neutral-500">
+                <p className="m-0 text-[13px] text-muted">
                   No candidate people. Create a new person, or search for one.
                 </p>
               )}
@@ -224,7 +224,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   <label
                     key={c.person_id}
                     className={`flex cursor-pointer items-start gap-3 rounded-md bg-bg px-3 py-[10px] ${
-                      on ? 'shadow-[inset_0_0_0_1px_var(--color-accent)]' : ''}`}
+                      on ? 'shadow-[inset_0_0_0_1px_var(--color-accent-border)]' : ''}`}
                   >
                     <span className="radio">
                       <input
@@ -236,11 +236,11 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                     <span className="flex flex-1 flex-col gap-[2px] text-[13px]">
                       <span className="flex justify-between gap-3">
                         <span>{c.display}</span>
-                        <span className={on ? 'text-accent-300' : 'text-neutral-400'}>
+                        <span className={on ? 'text-accent-text' : 'text-secondary'}>
                           {c.confidence.toFixed(2)}
                         </span>
                       </span>
-                      <span className="text-[12px] text-neutral-500">{reasonCopy(c.reason)}</span>
+                      <span className="text-[12px] text-muted">{reasonCopy(c.reason)}</span>
                     </span>
                   </label>
                 );
@@ -283,7 +283,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   Merge candidates
                 </button>
                 <button
-                  type="button" className="btn btn-ghost text-neutral-400" disabled={pending}
+                  type="button" className="btn btn-ghost text-secondary" disabled={pending}
                   onClick={() => resolve({ itemId: item.id, action: 'dismiss' })}
                 >
                   Dismiss
@@ -295,7 +295,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
       </article>
 
       {remaining.length > 1 && (
-        <p className="mt-3 max-w-[980px] text-[12px] text-neutral-500">
+        <p className="mt-3 max-w-[980px] text-[12px] text-muted">
           Next: {nameOf(remaining[(remaining.indexOf(item) + 1) % remaining.length]!.payload) ?? 'Unknown'}
           {' · '}{KIND_LABEL[remaining[(remaining.indexOf(item) + 1) % remaining.length]!.kind]}
         </p>
@@ -331,7 +331,7 @@ function FieldConflict(
           ),
         )}
       </div>
-      <p className="m-0 text-[12px] text-neutral-500">{WHY.field_conflict}</p>
+      <p className="m-0 text-[12px] text-muted">{WHY.field_conflict}</p>
     </div>
   );
 }

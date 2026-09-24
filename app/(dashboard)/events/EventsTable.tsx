@@ -10,13 +10,13 @@ import { fmtDayDateLong } from '@/lib/format';
 const fmtDate = fmtDayDateLong;
 
 /** 0 reads as "nothing imported yet" on an upcoming event, so it renders muted. */
-const count = (n: number) => n ? <>{n}</> : <span className="text-neutral-600">—</span>;
+const count = (n: number) => n ? <>{n}</> : <span className="text-muted">—</span>;
 
 const COLUMNS: ColumnDef<EventListRow, unknown>[] = [
   { id: 'name', header: 'Name', accessorKey: 'name' },
   {
     id: 'event_date', header: 'Date', accessorKey: 'event_date',
-    cell: ({ row }) => <span className="text-neutral-400">{fmtDate(row.original.event_date)}</span>,
+    cell: ({ row }) => <span className="text-secondary">{fmtDate(row.original.event_date)}</span>,
   },
   {
     id: 'event_type', header: 'Type', accessorKey: 'event_type',
@@ -44,7 +44,7 @@ const COLUMNS: ColumnDef<EventListRow, unknown>[] = [
     id: 'open_review_items', header: 'Imports', accessorKey: 'open_review_items',
     cell: ({ row }) => row.original.open_review_items > 0
       ? <Tag tone="outline">{row.original.open_review_items} to review</Tag>
-      : <span className="text-neutral-500">Clean</span>,
+      : <span className="text-muted">Clean</span>,
   },
 ];
 
@@ -86,7 +86,7 @@ export function EventsTable({ rows }: { rows: EventListRow[] }) {
         columns={COLUMNS}
         rowHref={(r) => `/events/${r.id}`}
         empty={
-          <div className="notice flex items-center gap-3 text-neutral-500">
+          <div className="notice flex items-center gap-3 text-muted">
             <CalendarBlank size={20} />
             {rows.length === 0 ? 'No events yet. Create one to start importing attendance.' : 'No events match these filters.'}
           </div>

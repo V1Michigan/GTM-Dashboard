@@ -10,7 +10,7 @@ import { fmtTime } from '@/lib/format';
 
 type Filter = 'all' | 'registered' | 'checked-in' | 'walk-ins' | 'no-shows';
 
-const MUTED = 'text-neutral-600';
+const MUTED = 'text-muted';
 const name = (a: EventAttendee) =>
   [a.person?.first_name, a.person?.last_name].filter(Boolean).join(' ') || '(no name)';
 
@@ -18,7 +18,7 @@ const COLUMNS: ColumnDef<EventAttendee, unknown>[] = [
   { id: 'name', header: 'Name', accessorFn: name },
   {
     id: 'email', header: 'Email', accessorFn: (a) => a.person?.primary_email ?? '',
-    cell: ({ row }) => <span className="text-neutral-400"><Empty value={row.original.person?.primary_email} /></span>,
+    cell: ({ row }) => <span className="text-secondary"><Empty value={row.original.person?.primary_email} /></span>,
   },
   {
     id: 'registered', header: 'Registered', accessorKey: 'registered',
@@ -33,7 +33,7 @@ const COLUMNS: ColumnDef<EventAttendee, unknown>[] = [
       if (!a.luma_approval_status) return <Empty value={null} />;
       return a.luma_approval_status === 'approved'
         ? <>{a.luma_approval_status}</>
-        : <span className="text-neutral-400">{a.luma_approval_status}</span>;
+        : <span className="text-secondary">{a.luma_approval_status}</span>;
     },
   },
   {
@@ -48,7 +48,7 @@ const COLUMNS: ColumnDef<EventAttendee, unknown>[] = [
     id: 'source', header: 'Source',
     accessorFn: (a) => [a.registration_source, a.checkin_source].filter(Boolean).join(' · '),
     cell: ({ row }) => (
-      <span className="text-neutral-500">
+      <span className="text-muted">
         <Empty value={[row.original.registration_source, row.original.checkin_source].filter(Boolean).join(' · ') || null} />
       </span>
     ),
@@ -100,7 +100,7 @@ export function AttendeeTable({ rows }: { rows: EventAttendee[] }) {
         columns={COLUMNS}
         rowHref={(a) => `/people/${a.person_id}`}
         empty={
-          <div className="notice flex items-center gap-3 text-neutral-500">
+          <div className="notice flex items-center gap-3 text-muted">
             <UsersThree size={20} />
             {rows.length === 0
               ? 'No attendance yet. Upload a Luma registration or Tally check-in CSV.'

@@ -38,16 +38,16 @@ export default async function OverviewPage() {
     label: `#${c.name}`, value: c.messages_30d, highlight: i === 0,
   }));
 
-  const zero = (n: number) => (empty ? <span className="text-neutral-600">{n}</span> : n.toLocaleString());
+  const zero = (n: number) => (empty ? <span className="text-muted">{n}</span> : n.toLocaleString());
 
   return (
     <div className="flex flex-col gap-[26px]">
       <header className="flex items-end justify-between gap-4">
         <div>
           <div className="label-kicker mb-1">{semester}</div>
-          <h1 className="text-[24px]">Overview</h1>
+          <h1 className="text-[36px]">Overview</h1>
         </div>
-        <div className="text-[12px] text-neutral-500">Public Slack channels sync daily at 03:00</div>
+        <div className="text-[12px] text-muted">Public Slack channels sync daily at 03:00</div>
       </header>
 
       <div className="grid grid-cols-5 gap-3">
@@ -69,9 +69,9 @@ export default async function OverviewPage() {
       </div>
 
       {empty ? (
-        <div className="flex max-w-[640px] flex-col items-start gap-[14px] rounded-lg border border-dashed border-neutral-700 p-20">
+        <div className="flex max-w-[640px] flex-col items-start gap-[14px] rounded-lg border border-dashed border-input-border p-20">
           <h2 className="text-[20px]">Nothing here yet</h2>
-          <p className="m-0 max-w-[52ch] text-[14px] text-neutral-400">
+          <p className="m-0 max-w-[52ch] text-[14px] text-secondary">
             Create your first event, then upload its Luma guest export and Tally check-in export.
             Charts appear once an import is committed.
           </p>
@@ -92,39 +92,39 @@ export default async function OverviewPage() {
           <div className="grid grid-cols-2 gap-4">
             <section className="card elev-sm gap-4 px-5 py-[18px]">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-[14px]">Check-ins per event</h2>
-                <span className="text-[11px] text-neutral-500">From event_stats · registered shown faint</span>
+                <h2 className="font-sans text-[14px] font-semibold">Check-ins per event</h2>
+                <span className="text-[11px] text-muted">From event_stats · registered shown faint</span>
               </div>
               {eventBars.length > 0
                 ? <BarChart bars={eventBars} layout="columns" />
-                : <p className="m-0 text-[13px] text-neutral-500">No events yet.</p>}
+                : <p className="m-0 text-[13px] text-muted">No events yet.</p>}
             </section>
 
             <section className="card elev-sm gap-[14px] px-5 py-[18px]">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-[14px]">Slack messages per channel</h2>
-                <span className="text-[11px] text-neutral-500">Last 30 days · public channels only</span>
+                <h2 className="font-sans text-[14px] font-semibold">Slack messages per channel</h2>
+                <span className="text-[11px] text-muted">Last 30 days · public channels only</span>
               </div>
               {channelBars.length > 0
                 ? <BarChart bars={channelBars} layout="rows" />
-                : <p className="m-0 text-[13px] text-neutral-500">No Slack activity yet.</p>}
+                : <p className="m-0 text-[13px] text-muted">No Slack activity yet.</p>}
             </section>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <section className="card elev-sm gap-[10px] px-5 py-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-[14px]">Recent imports</h2>
+                <h2 className="font-sans text-[14px] font-semibold">Recent imports</h2>
                 <Link className="text-[12px] no-underline" href="/imports">All imports</Link>
               </div>
               <table className="table table-dense">
                 <tbody>
                   {imports.map((i) => (
                     <tr key={i.id}>
-                      <td className="text-neutral-400">{stamp(i.created_at)}</td>
+                      <td className="text-secondary">{stamp(i.created_at)}</td>
                       <td>{sentence(i.kind)}{i.event ? ` · ${i.event.name}` : ''}</td>
                       <td><Tag tone={STATUS_TONE[i.status]}>{sentence(i.status)}</Tag></td>
-                      <td className="num text-neutral-400">{i.row_count ?? 0} rows</td>
+                      <td className="num text-secondary">{i.row_count ?? 0} rows</td>
                     </tr>
                   ))}
                 </tbody>
@@ -133,7 +133,7 @@ export default async function OverviewPage() {
 
             <section className="card elev-sm gap-[10px] px-5 py-4">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-[14px]">Upcoming events</h2>
+                <h2 className="font-sans text-[14px] font-semibold">Upcoming events</h2>
                 <Link className="text-[12px] no-underline" href="/events">All events</Link>
               </div>
               <table className="table table-dense">
@@ -142,12 +142,12 @@ export default async function OverviewPage() {
                     <tr key={e.id}>
                       <td>{day(e.event_date)}</td>
                       <td>{e.name}</td>
-                      <td className="text-neutral-400">{e.event_type ?? ''}</td>
-                      <td className="num text-neutral-400">{registered.get(e.id) ?? 0} registered</td>
+                      <td className="text-secondary">{e.event_type ?? ''}</td>
+                      <td className="num text-secondary">{registered.get(e.id) ?? 0} registered</td>
                     </tr>
                   ))}
                   {upcoming.length === 0 && (
-                    <tr><td className="text-neutral-500">Nothing scheduled.</td></tr>
+                    <tr><td className="text-muted">Nothing scheduled.</td></tr>
                   )}
                 </tbody>
               </table>

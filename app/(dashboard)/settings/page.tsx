@@ -27,7 +27,7 @@ function Integration(
         <h3 className="text-[14px]">{title}</h3>
         <Tag tone={tone}>{status}</Tag>
       </div>
-      <div className="flex flex-col gap-[3px] text-[12.5px] text-neutral-400">
+      <div className="flex flex-col gap-[3px] text-[12.5px] text-secondary">
         {lines.map((l) => <span key={l}>{l}</span>)}
       </div>
     </div>
@@ -57,7 +57,7 @@ export default async function SettingsPage() {
           {NAV.map(([id, label]) => (
             <a
               key={id} href={`#${id}`}
-              className="rounded-md px-[10px] py-[6px] text-neutral-300 no-underline hover:bg-accent-900 hover:text-accent-300"
+              className="rounded-md px-[10px] py-[6px] text-text no-underline hover:bg-accent-subtle hover:text-accent-text"
             >
               {label}
             </a>
@@ -71,8 +71,8 @@ export default async function SettingsPage() {
 
           <section id="mappings" className="flex scroll-mt-7 flex-col gap-3">
             <div>
-              <h2 className="mb-[2px] text-[17px]">Saved column mappings</h2>
-              <p className="m-0 text-[13px] text-neutral-400">
+              <h2 className="font-sans font-semibold mb-[2px] text-[17px]">Saved column mappings</h2>
+              <p className="m-0 text-[13px] text-secondary">
                 One default per (source, kind). The import wizard loads these and offers to save
                 changes back.
               </p>
@@ -90,7 +90,7 @@ export default async function SettingsPage() {
                     <td>{m.source}</td>
                     <td>{m.kind}</td>
                     <td className="num">{Object.keys(m.mapping).length}</td>
-                    <td className="text-neutral-500">{shortDate(m.updated_at)}</td>
+                    <td className="text-muted">{shortDate(m.updated_at)}</td>
                     <td className="num">
                       <Link
                         className="text-[12px] no-underline"
@@ -103,7 +103,7 @@ export default async function SettingsPage() {
                 ))}
                 {mappings.length === 0 && (
                   <tr>
-                    <td className="text-neutral-500" colSpan={5}>
+                    <td className="text-muted" colSpan={5}>
                       None saved yet — the wizard writes one the first time you map a file.
                     </td>
                   </tr>
@@ -114,8 +114,8 @@ export default async function SettingsPage() {
 
           <section id="export" className="flex scroll-mt-7 flex-col gap-3">
             <div>
-              <h2 className="mb-[2px] text-[17px]">Export</h2>
-              <p className="m-0 text-[13px] text-neutral-400">
+              <h2 className="font-sans font-semibold mb-[2px] text-[17px]">Export</h2>
+              <p className="m-0 text-[13px] text-secondary">
                 Streams CSV from the server. File names carry an ISO timestamp. Also available at{' '}
                 <Link href="/export">/export</Link> for bookmarking.
               </p>
@@ -125,8 +125,8 @@ export default async function SettingsPage() {
 
           <section id="integrations" className="flex scroll-mt-7 flex-col gap-3">
             <div>
-              <h2 className="mb-[2px] text-[17px]">Integrations</h2>
-              <p className="m-0 text-[13px] text-neutral-400">
+              <h2 className="font-sans font-semibold mb-[2px] text-[17px]">Integrations</h2>
+              <p className="m-0 text-[13px] text-secondary">
                 Read from environment variables. Secrets are never displayed.
               </p>
             </div>

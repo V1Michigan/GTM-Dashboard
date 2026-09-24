@@ -8,10 +8,10 @@ const KNOWN_TYPES = ['speaker', 'social', 'workshop', 'demo_day'];
 export default function NewEventPage() {
   return (
     <div className="flex flex-col gap-[22px]">
-      <div className="text-[12.5px] text-neutral-500">
-        <Link href="/events" className="text-neutral-400 no-underline">Events</Link> / New event
+      <div className="text-[12.5px] text-muted">
+        <Link href="/events" className="text-secondary no-underline">Events</Link> / New event
       </div>
-      <h1 className="m-0 text-[24px]">New event</h1>
+      <h1 className="m-0 text-[36px]">New event</h1>
 
       <form action={createEvent} className="flex max-w-[620px] flex-col gap-4">
         <Field label="Name *">
@@ -35,7 +35,7 @@ export default function NewEventPage() {
               {KNOWN_TYPES.map((t) => (
                 <span
                   key={t} className="tag tag-outline"
-                  style={{ borderColor: 'var(--color-neutral-700)', color: 'var(--color-neutral-400)' }}
+                  style={{ borderColor: 'var(--color-input-border)', color: 'var(--color-secondary)' }}
                 >
                   {t}
                 </span>
@@ -46,7 +46,7 @@ export default function NewEventPage() {
 
         <Field label="Notes"><textarea className="input" name="notes" /></Field>
 
-        <p className="m-0 text-[12px] text-neutral-500">
+        <p className="m-0 text-[12px] text-muted">
           Luma event ID and Tally check-in form ID are filled automatically on the first import
           for this event.
         </p>

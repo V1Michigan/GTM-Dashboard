@@ -41,7 +41,7 @@ export function ExportButtons() {
       {['people_wide', 'people', 'events', 'event_attendance'].map((t) => (
         <a key={t} className="btn btn-secondary" href={csvHref(t)} download>{t}.csv</a>
       ))}
-      <Link className="btn btn-ghost text-neutral-400" href="/export">More tables…</Link>
+      <Link className="btn btn-ghost text-secondary" href="/export">More tables…</Link>
     </div>
   );
 }

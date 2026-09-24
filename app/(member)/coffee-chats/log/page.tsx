@@ -62,12 +62,12 @@ export default async function LogCoffeeChatPage() {
           reviewBadge={<Suspense fallback={null}><ReviewBadge /></Suspense>}
         />
         <main className="flex min-w-0 flex-1 flex-col gap-[22px] px-9 pb-10 pt-7">
-          <div className="text-[12.5px] text-neutral-500">
-            <Link href="/coffee-chats" className="text-neutral-400 no-underline">Coffee chats</Link> / Log
+          <div className="text-[12.5px] text-muted">
+            <Link href="/coffee-chats" className="text-secondary no-underline">Coffee chats</Link> / Log
           </div>
           <div>
-            <h1 className="mb-1 text-[24px]">Log a coffee chat</h1>
-            <p className="m-0 text-[13px] text-neutral-400">
+            <h1 className="mb-1 text-[36px]">Log a coffee chat</h1>
+            <p className="m-0 text-[13px] text-secondary">
               Admin view: the member field is selectable. Members see the same form with it fixed.
             </p>
           </div>
@@ -81,20 +81,20 @@ export default async function LogCoffeeChatPage() {
     <main className="mx-auto flex w-full max-w-[430px] flex-col">
       <header className="flex items-center justify-between gap-3 px-5 pb-3 pt-4">
         <span className="flex items-center gap-2">
-          <span className="grid size-[22px] place-items-center rounded-md border border-accent text-[10px] font-semibold text-accent">
+          <span className="grid size-[22px] place-items-center rounded-md border border-accent-border text-[10px] font-semibold text-accent-text">
             V1
           </span>
           <span className="text-[14px] font-medium">Coffee chats</span>
         </span>
-        <form action="/auth/signout" method="post" className="text-[12px] text-neutral-500">
+        <form action="/auth/signout" method="post" className="text-[12px] text-muted">
           {session.email.split('@')[0]} ·{' '}
-          <button type="submit" className="min-h-[44px] text-accent">Sign out</button>
+          <button type="submit" className="min-h-[44px] text-accent-text">Sign out</button>
         </form>
       </header>
       <div className="flex flex-col gap-[18px] px-5 pb-6 pt-2">
         <div>
           <h1 className="mb-1 text-[22px]">Log a coffee chat</h1>
-          {myName && <p className="m-0 text-[13px] text-neutral-400">Logged as {myName}.</p>}
+          {myName && <p className="m-0 text-[13px] text-secondary">Logged as {myName}.</p>}
         </div>
         {form}
       </div>

@@ -25,10 +25,10 @@ export function UploadStep({ upload, preview, busy, onFile, onBack, onNext }: {
       />
 
       {upload ? (
-        <div className="flex items-center justify-between gap-4 rounded-md border border-accent-800 bg-surface px-[18px] py-[14px]">
+        <div className="flex items-center justify-between gap-4 rounded-md border border-accent-border bg-surface px-[18px] py-[14px]">
           <div className="flex min-w-0 flex-col gap-[2px]">
             <span className="truncate text-[13.5px]">{upload.file_name}</span>
-            <span className="text-[12px] text-neutral-500">
+            <span className="text-[12px] text-muted">
               {kb(upload.size)} · {upload.row_count} rows · {upload.column_count} columns · sha256{' '}
               {upload.file_hash.slice(0, 4)}…{upload.file_hash.slice(-4)} · uploaded to {upload.storage_path}
             </span>
@@ -48,11 +48,11 @@ export function UploadStep({ upload, preview, busy, onFile, onBack, onNext }: {
             const f = e.dataTransfer.files?.[0]; if (f) onFile(f);
           }}
           className={`flex flex-col items-center gap-2 rounded-lg border border-dashed px-6 py-12 text-[13px] ${
-            over ? 'border-accent text-accent-300' : 'border-neutral-700 text-neutral-400'}`}
+            over ? 'border-accent-border text-accent-text' : 'border-input-border text-secondary'}`}
         >
           <UploadSimple size={20} aria-hidden />
           {busy ? 'Uploading and parsing on the server…' : 'Drop the CSV here, or click to choose a file'}
-          <span className="text-[12px] text-neutral-500">
+          <span className="text-[12px] text-muted">
             The file is stored privately and re-parsed on the server before anything is written.
           </span>
         </button>
@@ -60,7 +60,7 @@ export function UploadStep({ upload, preview, busy, onFile, onBack, onNext }: {
 
       {preview && (
         <>
-          <span className="text-[13px] text-neutral-400">
+          <span className="text-[13px] text-secondary">
             Preview · first {preview.rows.length} of {upload?.row_count ?? preview.rows.length} rows
             (parsed in the browser; the server re-parses before commit)
           </span>

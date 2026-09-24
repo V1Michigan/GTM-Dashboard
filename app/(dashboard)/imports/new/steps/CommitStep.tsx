@@ -25,22 +25,22 @@ export function CommitStep({
   return (
     <div className="flex max-w-[620px] flex-col gap-5">
       <div>
-        <h2 className="mb-1 text-[17px]">Commit import</h2>
-        <p className="m-0 text-[13px] text-neutral-400">
+        <h2 className="font-sans font-semibold mb-1 text-[17px]">Commit import</h2>
+        <p className="m-0 text-[13px] text-secondary">
           Runs apply_import in one transaction. Rows are only ever added or updated; nothing is deleted.
         </p>
       </div>
 
       <div className="card elev-sm gap-2 px-[18px] py-[14px] text-[13px]">
         <div className="grid gap-x-3 gap-y-[6px]" style={{ gridTemplateColumns: '160px 1fr' }}>
-          <span className="text-neutral-500">Kind</span><span>{context}</span>
-          <span className="text-neutral-500">File</span><span className="break-all">{upload.file_name}</span>
-          <span className="text-neutral-500">Will write</span>
+          <span className="text-muted">Kind</span><span>{context}</span>
+          <span className="text-muted">File</span><span className="break-all">{upload.file_name}</span>
+          <span className="text-muted">Will write</span>
           <span>
             {c.new} new people · {c.updated} updated rows · {c.review} review items ·{' '}
             {c.unchanged + (allowBadRows ? 0 : c.bad)} rows skipped
           </span>
-          <span className="text-neutral-500">Cache tags</span>
+          <span className="text-muted">Cache tags</span>
           <span className="font-mono text-[12px]">{cacheTags}</span>
         </div>
       </div>
@@ -53,20 +53,20 @@ export function CommitStep({
           />
           <span>
             Incoming values win
-            <span className="mt-[2px] block text-[12px] text-neutral-500">
+            <span className="mt-[2px] block text-[12px] text-muted">
               Overwrite existing non-null person fields instead of creating field_conflict review items.
               Off by default.
             </span>
           </span>
         </label>
-        <label className={`flex items-start gap-[10px] text-[13px] ${c.bad === 0 ? 'text-neutral-500' : ''}`}>
+        <label className={`flex items-start gap-[10px] text-[13px] ${c.bad === 0 ? 'text-muted' : ''}`}>
           <input
             type="checkbox" className="mt-[3px]" checked={allowBadRows} disabled={c.bad === 0}
             onChange={(e) => setAllowBadRows(e.target.checked)}
           />
           <span>
             Import bad rows anyway
-            <span className="mt-[2px] block text-[12px] text-neutral-500">
+            <span className="mt-[2px] block text-[12px] text-muted">
               {c.bad === 0 ? 'No bad rows in this file.' : `${c.bad} test rows would be treated as real people.`}
             </span>
           </span>

@@ -15,7 +15,7 @@ const fmtStamp = (v: string) =>
 const title = (v: string) => v.replaceAll('_', ' ').replace(/^./, (c) => c.toUpperCase());
 const show = (v: Json) => v === null || v === undefined ? 'null' : typeof v === 'object' ? JSON.stringify(v) : String(v);
 
-const MUTED = 'text-neutral-600';
+const MUTED = 'text-muted';
 const dash = <span className={MUTED}>—</span>;
 
 export default async function PersonPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,8 +29,8 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
 
   return (
     <div className="flex flex-col gap-[22px]">
-      <div className="text-[12.5px] text-neutral-500">
-        <Link href="/people" className="text-neutral-400 no-underline">People</Link> / {name}
+      <div className="text-[12.5px] text-muted">
+        <Link href="/people" className="text-secondary no-underline">People</Link> / {name}
       </div>
 
       <PersonHeader
@@ -58,14 +58,14 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                     <td>
                       {e.is_primary ? <Tag tone="accent">Primary</Tag> : (
                         <form action={setPrimaryEmail.bind(null, person.id, e.id)}>
-                          <button className="cursor-pointer text-[12px] text-accent">Set primary</button>
+                          <button className="cursor-pointer text-[12px] text-accent-text">Set primary</button>
                         </form>
                       )}
                     </td>
-                    <td className="text-neutral-500">{e.source}</td>
+                    <td className="text-muted">{e.source}</td>
                     <td className="num">
                       <form action={removeEmail.bind(null, person.id, e.id)}>
-                        <button className="cursor-pointer text-[12px] text-neutral-500">Remove</button>
+                        <button className="cursor-pointer text-[12px] text-muted">Remove</button>
                       </form>
                     </td>
                   </tr>
@@ -87,7 +87,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
           <Section
             title="Events"
             actions={
-              <span className="text-[12px] text-neutral-500">
+              <span className="text-[12px] text-muted">
                 {events.filter((e) => e.registered).length} registered ·{' '}
                 {events.filter((e) => e.checked_in).length} attended
               </span>
@@ -106,15 +106,15 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                           {a.event.name}
                         </Link>
                       </td>
-                      <td className="text-neutral-400">{fmtDate(a.event.event_date)}</td>
+                      <td className="text-secondary">{fmtDate(a.event.event_date)}</td>
                       <td>
                         {a.registered
-                          ? <>Yes{a.luma_approval_status && <span className="text-neutral-500"> · {a.luma_approval_status}</span>}</>
+                          ? <>Yes{a.luma_approval_status && <span className="text-muted"> · {a.luma_approval_status}</span>}</>
                           : <span className={MUTED}>No</span>}
                       </td>
                       <td>
                         {a.checked_in
-                          ? <>Yes{fmtTime(a.checked_in_at) && <span className="text-neutral-500"> · {fmtTime(a.checked_in_at)}</span>}</>
+                          ? <>Yes{fmtTime(a.checked_in_at) && <span className="text-muted"> · {fmtTime(a.checked_in_at)}</span>}</>
                           : <span className={MUTED}>{a.registered ? 'No-show' : '—'}</span>}
                       </td>
                     </tr>
@@ -131,12 +131,12 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                   <div key={s.id} className="flex flex-col gap-2">
                     <div className="flex justify-between">
                       <span>{title(s.form_kind)}</span>
-                      <span className="text-neutral-500">{fmtDate(s.submitted_at)}</span>
+                      <span className="text-muted">{fmtDate(s.submitted_at)}</span>
                     </div>
                     <div className="grid grid-cols-[220px_1fr] gap-x-3 gap-y-1 rounded-md bg-bg px-[10px] py-2 text-[12.5px]">
                       {Object.entries(s.answers).map(([k, v]) => (
                         <div key={k} className="contents">
-                          <span className="text-neutral-500">{k}</span>
+                          <span className="text-muted">{k}</span>
                           <span>{show(v)}</span>
                         </div>
                       ))}
@@ -156,7 +156,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                     <tr key={a.id}>
                       <td>{title(a.semester)} {a.year}</td>
                       <td><Tag tone="neutral">{a.round_reached}</Tag></td>
-                      <td className="text-neutral-400"><Empty value={fmtDate(a.submitted_at)} /></td>
+                      <td className="text-secondary"><Empty value={fmtDate(a.submitted_at)} /></td>
                       <td><Empty value={a.outcome_notes} /></td>
                     </tr>
                   ))}
@@ -183,9 +183,9 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                         <Link href={`/people/${c.other.id}`} className="text-text no-underline">
                           {[c.other.first_name, c.other.last_name].filter(Boolean).join(' ') || '(no name)'}
                         </Link>
-                        <span className="text-neutral-500"> · {c.direction}</span>
+                        <span className="text-muted"> · {c.direction}</span>
                       </td>
-                      <td className="text-neutral-400"><Empty value={fmtDate(c.chatted_on)} /></td>
+                      <td className="text-secondary"><Empty value={fmtDate(c.chatted_on)} /></td>
                       <td><Empty value={c.notes} /></td>
                     </tr>
                   ))}
@@ -197,7 +197,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
           <Section
             title="Slack"
             actions={
-              <span className="text-[12px] text-neutral-500">
+              <span className="text-[12px] text-muted">
                 {person.slack_joined_at
                   ? `Joined ${fmtDate(person.slack_joined_at)}${person.slack_user_id ? ` · ${person.slack_user_id}` : ''}`
                   : 'Not in Slack'}
@@ -239,7 +239,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
                     <tr key={o.id}>
                       <td>{o.organization}</td>
                       <td><Empty value={o.role} /></td>
-                      <td className="text-neutral-500">{o.source}</td>
+                      <td className="text-muted">{o.source}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -252,10 +252,10 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
               <div className="flex flex-col gap-[6px] text-[12.5px]">
                 {audit.map((c) => (
                   <div key={c.id} className="grid grid-cols-[110px_1fr] gap-[10px]">
-                    <span className="text-neutral-500">{fmtStamp(c.created_at)}</span>
+                    <span className="text-muted">{fmtStamp(c.created_at)}</span>
                     <span>
                       <code className="text-[12px]">{c.field}</code> {show(c.old_value)} → {show(c.new_value)}
-                      <span className="text-neutral-500"> · {c.source}</span>
+                      <span className="text-muted"> · {c.source}</span>
                     </span>
                   </div>
                 ))}
@@ -284,7 +284,7 @@ function rollUp(rows: PersonDetail['slack']) {
 
 function EmptyPanel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md border border-dashed border-neutral-700 p-[14px] text-[13px] text-neutral-500">
+    <div className="flex items-center justify-between gap-3 rounded-md border border-dashed border-input-border p-[14px] text-[13px] text-muted">
       {children}
     </div>
   );

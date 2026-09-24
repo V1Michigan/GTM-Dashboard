@@ -4,7 +4,7 @@ import type { DryRunResult, PreviewRow } from '@/app/api/imports/dry-run/route';
 function Count({ label, value, note, accent }: { label: string; value: string; note?: string; accent?: boolean }) {
   return (
     <div className={`card elev-sm gap-[2px] px-[14px] py-3 ${
-      accent ? 'shadow-[0_0_0_1px_var(--color-accent-700)]' : ''}`}
+      accent ? 'shadow-[0_0_0_1px_var(--color-accent-border)]' : ''}`}
     >
       <span className="card-kicker">{label}</span>
       <span className="text-[22px] font-medium">{value}</span>
@@ -20,9 +20,9 @@ function PreviewTable({ rows, showConfidence }: { rows: PreviewRow[]; showConfid
         <tbody>
           {rows.map((r) => (
             <tr key={r.row}>
-              <td className="text-neutral-500">{r.row}</td>
+              <td className="text-muted">{r.row}</td>
               <td>{r.incoming}</td>
-              <td className="text-neutral-400">{r.reason}</td>
+              <td className="text-secondary">{r.reason}</td>
               {r.candidate !== null && <td>{r.candidate}</td>}
               {showConfidence && (
                 <td className="num">
@@ -41,7 +41,7 @@ function SectionHead({ title, note, action }: { title: string; note?: string; ac
   return (
     <div className="flex items-baseline justify-between gap-3">
       <span className="text-[14px] font-medium">{title}</span>
-      {note && <span className="text-[12px] text-neutral-500">{note}</span>}
+      {note && <span className="text-[12px] text-muted">{note}</span>}
       {action}
     </div>
   );
@@ -62,8 +62,8 @@ export function DryRunStep({ dry, running, allowBadRows, setAllowBadRows, onBack
   return (
     <div className="flex max-w-[960px] flex-col gap-[18px]">
       <div>
-        <h2 className="mb-1 text-[17px]">Dry run</h2>
-        <p className="m-0 text-[13px] text-neutral-400">
+        <h2 className="font-sans font-semibold mb-1 text-[17px]">Dry run</h2>
+        <p className="m-0 text-[13px] text-secondary">
           {running
             ? 'Parsing the stored file and matching every row. Nothing is being written.'
             : 'Nothing has been written. This is what committing would do.'}
@@ -104,7 +104,7 @@ export function DryRunStep({ dry, running, allowBadRows, setAllowBadRows, onBack
           <SectionHead
             title={`Bad rows · ${dry.bad.length}`}
             action={(
-              <label className="ml-auto flex items-center gap-2 text-[12.5px] text-neutral-400">
+              <label className="ml-auto flex items-center gap-2 text-[12.5px] text-secondary">
                 <input type="checkbox" checked={allowBadRows} onChange={(e) => setAllowBadRows(e.target.checked)} />
                 Import anyway
               </label>

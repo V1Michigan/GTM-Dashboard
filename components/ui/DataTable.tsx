@@ -117,7 +117,7 @@ export function DataTable<T>({
       </div>
 
       {table.getPageCount() > 1 && (
-        <div className="mt-4 flex items-center justify-between text-[12px] text-neutral-500">
+        <div className="mt-4 flex items-center justify-between text-[12px] text-muted">
           <span>
             {table.getFilteredRowModel().rows.length} rows · page{' '}
             {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}

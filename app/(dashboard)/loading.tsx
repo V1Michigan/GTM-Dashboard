@@ -9,7 +9,7 @@
  * any one of them.
  */
 const Bar = ({ w, h = 13 }: { w: string; h?: number }) => (
-  <div className="rounded-sm bg-neutral-800" style={{ width: w, height: h }} />
+  <div className="rounded-sm bg-surface-muted" style={{ width: w, height: h }} />
 );
 
 export default function DashboardLoading() {

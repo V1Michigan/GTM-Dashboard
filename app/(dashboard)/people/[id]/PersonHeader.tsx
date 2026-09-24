@@ -44,7 +44,7 @@ export function PersonHeader(
     <div className="flex items-start justify-between gap-6">
       <div className="flex flex-1 flex-col gap-[14px]">
         <div className="flex items-center gap-3">
-          <h1 className="m-0 text-[26px]">{name}</h1>
+          <h1 className="m-0 text-[36px]">{name}</h1>
           {person.is_v1_member
             ? <Tag tone="accent">Member</Tag>
             : <Tag tone="neutral">Not a member</Tag>}
@@ -59,13 +59,13 @@ export function PersonHeader(
             label="Grad year" name="grad_year" type="number"
             value={person.grad_year === null ? null : String(person.grad_year)} save={save}
             display={person.grad_year === null ? null : (
-              <>{person.grad_year}{grade && <span className="text-neutral-500"> · {grade}</span>}</>
+              <>{person.grad_year}{grade && <span className="text-muted"> · {grade}</span>}</>
             )}
           />
           <InlineEdit label="Grad term" name="grad_term" value={person.grad_term} save={save} options={TERMS} />
           <InlineEdit label="Student level" name="student_level" value={person.student_level} save={save} options={LEVELS} />
           <InlineEdit
-            label={<>Gender <span className="text-accent-300">· sensitive</span></>}
+            label={<>Gender <span className="text-accent-text">· sensitive</span></>}
             name="gender" value={person.gender} save={save} options={GENDERS}
           />
           <div className="col-span-2">
@@ -127,7 +127,7 @@ function ReadOnly({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
       <div className="label-kicker">{label}</div>
-      <div className="mt-1 text-[13px]">{value ?? <span className="text-neutral-600">—</span>}</div>
+      <div className="mt-1 text-[13px]">{value ?? <span className="text-muted">—</span>}</div>
     </div>
   );
 }

@@ -25,13 +25,13 @@ export function Sidebar(
 ) {
   const pathname = usePathname();
   return (
-    <aside className="flex w-[220px] shrink-0 flex-col border-r border-divider bg-surface px-[14px] pb-[18px] pt-[22px]">
+    <aside className="flex w-[220px] shrink-0 flex-col border-r border-divider bg-bg px-[14px] pb-[18px] pt-[22px]">
       <div className="flex items-center gap-[10px] px-[10px] pb-[22px]">
         <Image src="/v1-logo.png" alt="V1" width={26} height={26} priority className="size-[26px]" />
-        <div className="text-[15px] font-medium tracking-[-0.01em]">GTM Dashboard</div>
+        <div className="font-display text-[22px] tracking-[-0.02em]">GTM Dashboard</div>
       </div>
 
-      <nav className="flex flex-col gap-[2px]">
+      <nav aria-label="Main navigation" className="flex flex-col gap-[2px]">
         {ITEMS.map(({ href, label, Icon, badge }) => {
           const on = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (
@@ -41,15 +41,15 @@ export function Sidebar(
               aria-current={on ? 'page' : undefined}
               className={`flex items-center justify-between rounded-md px-[10px] py-[7px] text-[13.5px] no-underline ${
                 on
-                  ? 'bg-accent-900 text-accent-300 shadow-[inset_0_0_0_1px_var(--color-accent-800)]'
-                  : 'text-neutral-300 hover:bg-[color-mix(in_srgb,var(--color-text)_6%,transparent)]'
+                  ? 'bg-accent-subtle text-text shadow-[inset_0_0_0_1px_var(--color-accent-border)]'
+                  : 'text-secondary hover:bg-surface-muted'
               }`}
             >
               <span className="flex items-center gap-[10px]">
                 <span
                   aria-hidden
                   className="h-[14px] w-[3px] rounded-[2px]"
-                  style={{ background: on ? 'var(--color-accent)' : 'transparent' }}
+                  style={{ background: on ? 'var(--color-accent-text)' : 'transparent' }}
                 />
                 <Icon size={16} aria-hidden />
                 {label}
@@ -62,9 +62,9 @@ export function Sidebar(
 
       <div className="mt-auto flex flex-col gap-1 border-t border-divider px-[10px] pt-3">
         <div className="text-[12.5px]">{email.split('@')[0]}</div>
-        <div className="text-[11.5px] text-neutral-500">{email} · {role}</div>
+        <div className="text-[11.5px] text-muted">{email} · {role}</div>
         <form action="/auth/signout" method="post">
-          <button type="submit" className="mt-1 text-[12px] text-accent">Sign out</button>
+          <button type="submit" className="mt-1 text-[12px] text-accent-text">Sign out</button>
         </form>
       </div>
     </aside>

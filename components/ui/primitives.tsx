@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * Nocturne tag semantics (design handoff):
+ * V1 tag semantics:
  *   accent  = settled positive state (committed, applied, member, bot member)
  *   outline = needs human attention (needs review, walk-in, stub, typo domain)
  *   neutral = neutral fact or inert state (draft, skipped, archived, event type)
@@ -14,12 +14,12 @@ export function Tag(
 
 /** Booleans read as `Yes` / muted em dash, never as raw true/false. */
 export function YesNo({ value }: { value: boolean | null | undefined }) {
-  return value ? <>Yes</> : <span className="text-neutral-600">—</span>;
+  return value ? <>Yes</> : <span className="text-muted">—</span>;
 }
 
 export function Empty({ value }: { value: ReactNode }) {
   return value === null || value === undefined || value === ''
-    ? <span className="text-neutral-600">—</span>
+    ? <span className="text-muted">—</span>
     : <>{value}</>;
 }
 
@@ -29,8 +29,8 @@ export function PageHeader(
   return (
     <header className="mb-6 flex items-start justify-between gap-4">
       <div>
-        <h1 className="text-[24px]">{title}</h1>
-        {subtitle && <p className="mt-1 text-[13px] text-neutral-500">{subtitle}</p>}
+        <h1 className="text-[36px]">{title}</h1>
+        {subtitle && <p className="mt-1 text-[13px] text-muted">{subtitle}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
     </header>
@@ -48,7 +48,7 @@ export function StatCard(
       {note && <span className="card-meta">{note}</span>}
     </>
   );
-  const className = `card elev-sm no-underline ${accent ? 'shadow-[inset_0_0_0_1px_var(--color-accent)]' : ''}`;
+  const className = `card elev-sm no-underline ${accent ? 'bg-accent-subtle shadow-[inset_0_0_0_1px_var(--color-accent-border)]' : ''}`;
   return href
     ? <a href={href} className={className} style={{ color: 'var(--color-text)' }}>{inner}</a>
     : <div className={className}>{inner}</div>;
@@ -58,7 +58,7 @@ export function Section({ title, actions, children }: { title: string; actions?:
   return (
     <section className="card elev-sm gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-[14px]">{title}</h2>
+        <h2 className="font-sans text-[14px] font-semibold">{title}</h2>
         {actions}
       </div>
       {children}
@@ -73,7 +73,7 @@ export function Field(
     <div className="field">
       <label>{label}</label>
       {children}
-      {hint && <div className="mt-1 text-[11px] text-neutral-500">{hint}</div>}
+      {hint && <div className="mt-1 text-[11px] text-muted">{hint}</div>}
     </div>
   );
 }

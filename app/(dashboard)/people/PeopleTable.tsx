@@ -13,7 +13,7 @@ import { peopleSearchParams, type PeopleQuery } from '@/lib/peopleQuery';
 import type { PersonListRow } from '@/lib/queries';
 
 const STORAGE_KEY = 'v1gtm.people.columns';
-const MUTED = 'text-neutral-600';
+const MUTED = 'text-muted';
 
 const fullName = (r: PersonListRow) => [r.first_name, r.last_name].filter(Boolean).join(' ');
 const dash = <span className={MUTED}>—</span>;
@@ -28,7 +28,7 @@ const COLUMNS: ColumnDef<PersonListRow, unknown>[] = [
     meta: { label: 'Primary email' },
     cell: ({ row }) => row.original.primary_email
       ? (
-        <span className="text-neutral-400">
+        <span className="text-secondary">
           {row.original.primary_email}
           {row.original.email_count > 1 && (
             <span className={`ml-1 text-[11px] ${MUTED}`}>+{row.original.email_count - 1}</span>
@@ -43,10 +43,10 @@ const COLUMNS: ColumnDef<PersonListRow, unknown>[] = [
     cell: ({ row }) => {
       const { grad_year, student_level } = row.original;
       if (!grad_year) {
-        return student_level === 'graduate' ? <span className="text-neutral-500">Graduate</span> : dash;
+        return student_level === 'graduate' ? <span className="text-muted">Graduate</span> : dash;
       }
       const grade = gradeLabel(grad_year);
-      return <>{grad_year}{grade && <span className="text-neutral-500"> · {grade}</span>}</>;
+      return <>{grad_year}{grade && <span className="text-muted"> · {grade}</span>}</>;
     },
   },
   {
@@ -91,7 +91,7 @@ const COLUMNS: ColumnDef<PersonListRow, unknown>[] = [
   {
     id: 'notes', header: 'Notes', accessorKey: 'notes',
     meta: { label: 'Notes', hiddenByDefault: true },
-    cell: ({ row }) => <span className="text-neutral-400">{row.original.notes ?? '—'}</span>,
+    cell: ({ row }) => <span className="text-secondary">{row.original.notes ?? '—'}</span>,
   },
   {
     id: 'member_since', header: 'Member since', accessorKey: 'member_since',
@@ -179,12 +179,12 @@ export function PeopleTable(
         </select>
 
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-[12px] text-neutral-500">
+          <span className="text-[12px] text-muted">
             {total.toLocaleString()} shown{pending && ' · …'}
           </span>
           <Popover
             trigger={
-              <button type="button" className="btn btn-secondary data-[state=open]:shadow-[inset_0_0_0_1px_var(--color-accent)]">
+              <button type="button" className="btn btn-secondary data-[state=open]:shadow-[inset_0_0_0_1px_var(--color-accent-border)]">
                 <Columns size={16} /> Columns · {columns.length}
               </button>
             }
@@ -193,7 +193,7 @@ export function PeopleTable(
               <div className="label-kicker pb-2">Columns</div>
               {visible.map((c) => <ColumnToggle key={c.id} column={c} hidden={hidden} onToggle={toggle} />)}
               <div className="my-[6px] h-px bg-divider" />
-              <div className="pb-[6px] text-[11px] text-neutral-500">Hidden by default</div>
+              <div className="pb-[6px] text-[11px] text-muted">Hidden by default</div>
               {hiddenGroup.map((c) => <ColumnToggle key={c.id} column={c} hidden={hidden} onToggle={toggle} />)}
             </div>
           </Popover>
@@ -210,7 +210,7 @@ export function PeopleTable(
           // Third click clears the sort; the list still needs an order.
           : { sort: 'name', desc: false })}
         empty={
-          <div className="notice flex items-center gap-3 text-neutral-500">
+          <div className="notice flex items-center gap-3 text-muted">
             <UsersThree size={20} />
             {total === 0 && query.q === '' && query.filter === 'all' && query.year === null
               ? 'No people yet. Import a Luma or Tally CSV to populate this table.'
@@ -220,7 +220,7 @@ export function PeopleTable(
       />
 
       {pages > 1 && (
-        <div className="flex items-center justify-between text-[12px] text-neutral-500">
+        <div className="flex items-center justify-between text-[12px] text-muted">
           <span>Page {query.page + 1} of {pages.toLocaleString()}</span>
           <span className="flex gap-2">
             <button
@@ -249,13 +249,13 @@ function ColumnToggle(
 ) {
   const id = column.id ?? '';
   return (
-    <label className={`flex cursor-pointer items-center justify-between py-[5px] ${column.meta?.hiddenByDefault ? 'text-neutral-400' : ''}`}>
+    <label className={`flex cursor-pointer items-center justify-between py-[5px] ${column.meta?.hiddenByDefault ? 'text-secondary' : ''}`}>
       <span>
         {column.meta?.label ?? id}
-        {column.meta?.sensitive && <span className="ml-1 text-[10px] text-accent-300">sensitive</span>}
+        {column.meta?.sensitive && <span className="ml-1 text-[10px] text-accent-text">sensitive</span>}
       </span>
       <input
-        type="checkbox" className="size-[14px]" style={{ accentColor: 'var(--color-accent)' }}
+        type="checkbox" className="size-[14px]" style={{ accentColor: 'var(--color-accent-text)' }}
         checked={!hidden[id]} onChange={() => onToggle(id)}
       />
     </label>

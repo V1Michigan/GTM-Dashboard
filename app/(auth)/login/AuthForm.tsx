@@ -32,7 +32,7 @@ export function AuthForm() {
       {error && (
         <div className="notice flex flex-col gap-1">
           <div className="text-[13px] font-medium">That account can&rsquo;t sign in</div>
-          <div className="text-[12.5px] text-neutral-400">{error}</div>
+          <div className="text-[12.5px] text-secondary">{error}</div>
         </div>
       )}
 

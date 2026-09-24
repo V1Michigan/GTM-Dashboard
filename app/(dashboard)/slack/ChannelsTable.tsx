@@ -10,7 +10,7 @@ const dim = (c: SlackChannelStats, node: ReactNode) =>
 
 /** A channel the bot has not joined has no counts yet — it joins at the next sync. */
 const count = (c: SlackChannelStats, n: number) =>
-  dim(c, c.bot_is_member || n > 0 ? n.toLocaleString() : <span className="text-neutral-600">—</span>);
+  dim(c, c.bot_is_member || n > 0 ? n.toLocaleString() : <span className="text-muted">—</span>);
 
 const columns: ColumnDef<SlackChannelStats, unknown>[] = [
   { id: 'name', header: 'Channel', accessorFn: (c) => c.name, cell: ({ row }) => dim(row.original, `#${row.original.name}`) },
@@ -46,7 +46,7 @@ export function ChannelsTable({ channels }: { channels: SlackChannelStats[] }) {
   return (
     <DataTable
       data={channels} columns={columns}
-      empty={<p className="text-[13px] text-neutral-500">No channels synced yet.</p>}
+      empty={<p className="text-[13px] text-muted">No channels synced yet.</p>}
     />
   );
 }

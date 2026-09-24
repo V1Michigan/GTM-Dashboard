@@ -73,9 +73,9 @@ export function LogForm({
         </Field>
 
         {newPerson && (
-          <div className="flex flex-col gap-[10px] rounded-md border border-dashed border-accent-800 px-[14px] py-3">
+          <div className="flex flex-col gap-[10px] rounded-md border border-dashed border-accent-border px-[14px] py-3">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-[11px] uppercase tracking-[0.08em] text-accent-300">Add person</span>
+              <span className="text-[11px] uppercase tracking-[0.08em] text-accent-text">Add person</span>
               <button type="button" className="btn btn-ghost text-[12px]" onClick={() => setNewPerson(null)}>
                 Cancel
               </button>
@@ -94,7 +94,7 @@ export function LogForm({
                 onChange={(e) => setNewPerson({ ...newPerson, email: e.target.value })}
               />
             </div>
-            <div className="text-[12px] text-neutral-500">
+            <div className="text-[12px] text-muted">
               An admin will confirm this person. Your chat is saved right away.
             </div>
           </div>
@@ -106,7 +106,7 @@ export function LogForm({
             id={`${uid}-date`} type="date" className={`input ${tall}`} value={chattedOn} required
             max={today} onChange={(e) => setChattedOn(e.target.value)}
           />
-          {chattedOn === today && <div className="mt-1 text-[11px] text-neutral-500">Today</div>}
+          {chattedOn === today && <div className="mt-1 text-[11px] text-muted">Today</div>}
         </div>
 
         <div className="field">
@@ -135,7 +135,7 @@ export function LogForm({
 
       {recent.length > 0 && (
         <section className="mt-[6px] flex flex-col gap-2">
-          <h2 className="label-kicker">Your recent chats</h2>
+          <h2 className="label-kicker font-sans">Your recent chats</h2>
           {recent.map((c, i) => (
             <div
               key={c.id}
@@ -146,12 +146,12 @@ export function LogForm({
               <span>
                 {c.name}
                 <br />
-                <span className="text-[12px] text-neutral-500">{c.when}</span>
+                <span className="text-[12px] text-muted">{c.when}</span>
               </span>
               {c.deletable ? (
                 <button
                   type="button" disabled={pending}
-                  className="btn btn-ghost min-h-[44px] text-[13px] text-neutral-400"
+                  className="btn btn-ghost min-h-[44px] text-[13px] text-secondary"
                   onClick={() => start(async () => {
                     const message = await deleteCoffeeChat(c.id);
                     if (message) setError(message); else router.refresh();
@@ -160,11 +160,11 @@ export function LogForm({
                   Delete
                 </button>
               ) : (
-                <span className="pr-[10px] text-[12px] text-neutral-600">locked</span>
+                <span className="pr-[10px] text-[12px] text-muted">locked</span>
               )}
             </div>
           ))}
-          <div className="text-[11.5px] text-neutral-600">
+          <div className="text-[11.5px] text-muted">
             Chats can be deleted for 24 hours after logging.
           </div>
         </section>

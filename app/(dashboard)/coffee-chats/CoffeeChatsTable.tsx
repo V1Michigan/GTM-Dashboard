@@ -37,7 +37,7 @@ const shortDate = (d: string) =>
 const columns: ColumnDef<ChatRow, unknown>[] = [
   {
     id: 'date', header: 'Date', accessorFn: (r) => r.on,
-    cell: ({ row }) => <span className="text-neutral-400">{shortDate(row.original.on)}</span>,
+    cell: ({ row }) => <span className="text-secondary">{shortDate(row.original.on)}</span>,
   },
   { id: 'member', header: 'Member', accessorFn: (r) => r.memberName },
   {
@@ -49,18 +49,18 @@ const columns: ColumnDef<ChatRow, unknown>[] = [
   {
     id: 'notes', header: 'Notes', accessorFn: (r) => r.notes ?? '',
     cell: ({ row }) => (
-      <span className="block max-w-[300px] truncate text-neutral-300">
+      <span className="block max-w-[300px] truncate text-text">
         <Empty value={row.original.notes} />
       </span>
     ),
   },
   {
     id: 'source', header: 'Source', accessorFn: (r) => r.source,
-    cell: ({ row }) => <span className="text-neutral-500">{row.original.source}</span>,
+    cell: ({ row }) => <span className="text-muted">{row.original.source}</span>,
   },
   {
     id: 'logged', header: 'Logged by', accessorFn: (r) => r.loggedBy,
-    cell: ({ row }) => <span className="text-neutral-500">{row.original.loggedBy}</span>,
+    cell: ({ row }) => <span className="text-muted">{row.original.loggedBy}</span>,
   },
 ];
 
@@ -118,13 +118,13 @@ export function CoffeeChatsTable(
         </div>
         <DataTable
           data={rows} columns={columns} globalFilter={search}
-          empty={<p className="text-[13px] text-neutral-500">No chats in this range.</p>}
+          empty={<p className="text-[13px] text-muted">No chats in this range.</p>}
         />
       </div>
 
       <aside className="card elev-sm gap-3 px-[18px] py-4">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[14px]">Leaderboard</h2>
+          <h2 className="font-sans text-[14px] font-semibold">Leaderboard</h2>
           <Seg
             name="Leaderboard range" value={board} onChange={setBoard}
             options={[{ value: '30d', label: '30d' }, { value: 'semester', label: 'Semester' }]}
@@ -134,15 +134,15 @@ export function CoffeeChatsTable(
           <tbody>
             {leaders.map(([name, count], i) => (
               <tr key={name}>
-                <td className="w-6 text-neutral-500">{i + 1}</td>
+                <td className="w-6 text-muted">{i + 1}</td>
                 <td>{name}</td>
                 <td className="num">{count}</td>
               </tr>
             ))}
-            {leaders.length === 0 && <tr><td className="text-neutral-500">Nobody yet.</td></tr>}
+            {leaders.length === 0 && <tr><td className="text-muted">Nobody yet.</td></tr>}
           </tbody>
         </table>
-        <div className="text-[12px] text-neutral-500">
+        <div className="text-[12px] text-muted">
           {idle} member{idle === 1 ? ' has' : 's have'} not logged a chat
           {board === '30d' ? ' in 30 days' : ' this semester'}.
         </div>

@@ -32,18 +32,18 @@ export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
     },
     {
       id: 'person', header: 'Linked person', accessorFn: (u) => u.person ?? '',
-      cell: ({ row }) => <span className="text-neutral-400"><Empty value={row.original.person} /></span>,
+      cell: ({ row }) => <span className="text-secondary"><Empty value={row.original.person} /></span>,
     },
     {
       id: 'added', header: 'Added', accessorFn: (u) => u.added,
-      cell: ({ row }) => <span className="text-neutral-500">{row.original.added}</span>,
+      cell: ({ row }) => <span className="text-muted">{row.original.added}</span>,
     },
     {
       id: 'action', header: '', enableSorting: false,
       cell: ({ row }) => {
         const u = row.original;
         if (u.email.toLowerCase() === me.toLowerCase()) {
-          return <span className="block text-right text-[12px] text-neutral-600">you</span>;
+          return <span className="block text-right text-[12px] text-muted">you</span>;
         }
         const next = u.role === 'admin' ? 'member' : 'admin';
         return (
@@ -63,8 +63,8 @@ export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
   return (
     <div className="flex flex-col gap-3">
       <div>
-        <h2 className="mb-[2px] text-[17px]">Users &amp; roles</h2>
-        <p className="m-0 text-[13px] text-neutral-400">
+        <h2 className="font-sans font-semibold mb-[2px] text-[17px]">Users &amp; roles</h2>
+        <p className="m-0 text-[13px] text-secondary">
           There is no self sign-up. Create an account here and pass the one-time password to the
           person. Admins see everything; members can only log coffee chats.
         </p>
@@ -110,11 +110,11 @@ export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
       {created && (
         <div className="notice flex flex-col gap-2">
           <div className="text-[13px] font-medium">Account created for {created.email}</div>
-          <div className="text-[12.5px] text-neutral-400">
+          <div className="text-[12.5px] text-secondary">
             Give them this one-time password. It is not stored anywhere and cannot be shown again —
             copy it now.
           </div>
-          <code className="rounded-sm bg-[var(--color-bg)] px-3 py-2 font-mono text-[13px] text-accent-300">
+          <code className="rounded-sm bg-[var(--color-bg)] px-3 py-2 font-mono text-[13px] text-accent-text">
             {created.password}
           </code>
         </div>
@@ -124,7 +124,7 @@ export function UsersSection({ users, me }: { users: UserRow[]; me: string }) {
 
       <DataTable
         data={users} columns={columns}
-        empty={<p className="text-[13px] text-neutral-500">No users yet.</p>}
+        empty={<p className="text-[13px] text-muted">No users yet.</p>}
       />
     </div>
   );

@@ -47,8 +47,8 @@ export function KindStep({
   return (
     <div className="flex max-w-[760px] flex-col gap-[22px]">
       <div>
-        <h2 className="mb-1 text-[17px]">What are you importing?</h2>
-        <p className="m-0 text-[13px] text-neutral-400">
+        <h2 className="font-sans font-semibold mb-1 text-[17px]">What are you importing?</h2>
+        <p className="m-0 text-[13px] text-secondary">
           The kind sets the parser, the saved column mapping and the merge rules.
         </p>
       </div>
@@ -60,9 +60,9 @@ export function KindStep({
             <button
               key={k} type="button" onClick={() => setKind(k)} aria-pressed={on}
               className={`card cursor-pointer gap-1 text-left ${
-                on ? 'shadow-[inset_0_0_0_1px_var(--color-accent)]' : 'elev-sm'}`}
+                on ? 'shadow-[inset_0_0_0_1px_var(--color-accent-border)]' : 'elev-sm'}`}
             >
-              <span className={`card-title text-[14px] ${on ? 'text-accent-300' : ''}`}>{KIND_LABEL[k]}</span>
+              <span className={`card-title text-[14px] ${on ? 'text-accent-text' : ''}`}>{KIND_LABEL[k]}</span>
               <span className="card-body text-[12px]">{DESCRIPTION[k]}</span>
             </button>
           );
@@ -112,7 +112,7 @@ export function KindStep({
           />
           <span>
             Replace roster: unmark members not in this file
-            <span className="mt-1 block text-[12px] text-neutral-500">
+            <span className="mt-1 block text-[12px] text-muted">
               Off by default. A roster is the one import where absence is meaningful; unmarking is
               logged to field_changes and never deletes anyone.
             </span>

@@ -31,7 +31,7 @@ export function InlineEdit({
           onClick={() => { setDraft(value ?? ''); setEditing(true); }}
           className="editable mt-1 text-left text-[13px]"
         >
-          {display ?? value ?? <span className="text-neutral-600">—</span>}
+          {display ?? value ?? <span className="text-muted">—</span>}
         </button>
       </div>
     );
@@ -49,13 +49,13 @@ export function InlineEdit({
     >
       <div className="label-kicker">{label}</div>
       {options ? (
-        <select className="input mt-1 border-accent" value={draft} onChange={(e) => setDraft(e.target.value)}>
+        <select className="input mt-1 border-accent-border" value={draft} onChange={(e) => setDraft(e.target.value)}>
           <option value="">—</option>
           {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
       ) : (
         <input
-          autoFocus type={type} className="input mt-1 border-accent"
+          autoFocus type={type} className="input mt-1 border-accent-border"
           value={draft} onChange={(e) => setDraft(e.target.value)}
         />
       )}

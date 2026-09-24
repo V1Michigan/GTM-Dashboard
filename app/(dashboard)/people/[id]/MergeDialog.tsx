@@ -74,20 +74,20 @@ export function MergeDialog(
 
         <div className="grid grid-cols-2 gap-[10px] text-[12.5px]">
           <div className="rounded-md bg-bg px-3 py-[10px]">
-            <div className="mb-[6px] text-[10px] uppercase tracking-[0.08em] text-accent">Keep</div>
+            <div className="mb-[6px] text-[10px] uppercase tracking-[0.08em] text-accent-text">Keep</div>
             {keep ? (
               <>
                 {keep.label}<br />
-                <span className="text-neutral-500">{keep.hint ?? 'no email on file'}</span>
+                <span className="text-muted">{keep.hint ?? 'no email on file'}</span>
               </>
             ) : (
-              <span className="text-neutral-500">Choose the person to keep</span>
+              <span className="text-muted">Choose the person to keep</span>
             )}
           </div>
           <div className="rounded-md bg-bg px-3 py-[10px] opacity-75">
-            <div className="mb-[6px] text-[10px] uppercase tracking-[0.08em] text-neutral-500">Drop</div>
+            <div className="mb-[6px] text-[10px] uppercase tracking-[0.08em] text-muted">Drop</div>
             {drop.name}<br />
-            <span className="text-neutral-500">
+            <span className="text-muted">
               {drop.emails} email{drop.emails === 1 ? '' : 's'} · {drop.events} event
               {drop.events === 1 ? '' : 's'} · {drop.applications} PS app
               {drop.applications === 1 ? '' : 's'} · created {drop.createdOn}

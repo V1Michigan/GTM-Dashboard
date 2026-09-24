@@ -56,9 +56,11 @@ fixtures/csv              one sample file per import kind
 
 ## Design system
 
-Nocturne, copied verbatim to `app/nocturne.css` from the handoff. It is the
-canonical token source; `app/globals.css` maps those tokens onto Tailwind v4 so
-utilities and component classes resolve to the same values.
+The V1 website visual language is consolidated in `app/v1-theme.css`: cream
+backgrounds, charcoal text, gold accents, Instrument Serif display headings,
+and Inter interface text. `app/globals.css` exposes the same semantic tokens
+to Tailwind v4. See [the design system](docs/design-system.md) for source
+references, color roles, component guidance, and accessibility adaptations.
 
 **Deviation from spec §5, recorded here as the spec asks.** The spec fixes
 Google as the only provider with email/password disabled. This build uses email
@@ -73,10 +75,10 @@ or attached to a person with `is_v1_member = true`. Switching provider does not
 widen who can get in. Email confirmations are off, so no SMTP is required.
 
 **One deviation from spec §2, recorded here as the spec asks.** The spec names
-shadcn/ui. Nocturne already ships `.btn`, `.card`, `.table`, `.tag`, `.input`,
+shadcn/ui. The dashboard already ships `.btn`, `.card`, `.table`, `.tag`, `.input`,
 `.seg` and `.dialog` as finished CSS, so generating shadcn's components and then
 re-theming each one against those same variables would be strictly more code for
 identical pixels. Instead `components/ui/` wraps Radix primitives — the parts
 that carry real behaviour and accessibility (dialog, popover, combobox, radio
-group, checkbox) — in the Nocturne classes, and everything purely visual uses the
+group, checkbox) — in the shared design-system classes, and everything purely visual uses the
 classes directly. TanStack Table, Tailwind and the token mapping are unchanged.
