@@ -24,14 +24,14 @@ export default async function OverviewPage() {
   const semester = `${now.getMonth() >= 7 ? 'Fall' : 'Winter'} ${now.getFullYear()}`;
   const empty = (stats?.total_people ?? 0) === 0 && (stats?.events_this_semester ?? 0) === 0;
 
-  const registered = new Map(checkins.map((e) => [e.event_id, e.registered_count]));
-  const current = checkins.filter((e) => e.event_date <= today).at(-1)?.event_id;
+  const registered = new Map(checkins.map((e) => [e.id, e.registered_count]));
+  const current = checkins.filter((e) => e.event_date <= today).at(-1)?.id;
   const eventBars: Bar[] = checkins.slice(-6).map((e) => ({
     label: e.name,
     value: e.checked_in_count,
     track: Math.max(e.registered_count, e.checked_in_count),
     note: e.event_date > today ? `${e.registered_count} reg` : String(e.checked_in_count),
-    highlight: e.event_id === current,
+    highlight: e.id === current,
     pending: e.event_date > today,
   }));
   const channelBars: Bar[] = slackBars.map((c, i) => ({
@@ -93,7 +93,7 @@ export default async function OverviewPage() {
             <section className="card elev-sm gap-4 px-5 py-[18px]">
               <div className="flex items-baseline justify-between gap-3">
                 <h2 className="font-sans text-[14px] font-semibold">Check-ins per event</h2>
-                <span className="text-[11px] text-muted">From event_stats · registered shown faint</span>
+                <span className="text-[11px] text-muted">Registered shown faint</span>
               </div>
               {eventBars.length > 0
                 ? <BarChart bars={eventBars} layout="columns" />

@@ -5,9 +5,9 @@ import {
 } from '@/lib/peopleQuery';
 import { createServerClient } from '@/lib/supabase/server';
 import type {
-  AppUser, CoffeeChat, EventAttendance, EventRow, EventStats, FieldChange, FormSubmission,
-  ImportRecord, ImportRowRecord, PeopleDirectoryRow, Person, PersonEmail, PersonEventSummary,
-  PersonOrganization, ProductStudioApplication, ReviewItem, SavedColumnMapping, SlackChannel,
+  AppUser, CoffeeChat, EventAttendance, EventRow, FieldChange, FormSubmission,
+  ImportRecord, ImportRowRecord, PeopleDirectoryRow, Person, PersonEmail,
+  ProductStudioApplication, ReviewItem, SavedColumnMapping, SlackChannel,
   SlackChannelActivity, SlackUnmatchedUser,
 } from '@/lib/types';
 
@@ -85,14 +85,12 @@ export interface PersonDetail {
   applications: ProductStudioApplication[];
   chats: (CoffeeChat & { other: Pick<Person, 'id' | 'first_name' | 'last_name'>; direction: 'gave' | 'received' })[];
   slack: (SlackChannelActivity & { channel: SlackChannel })[];
-  organizations: PersonOrganization[];
   audit: FieldChange[];
-  summary: PersonEventSummary | null;
 }
 
 export const getPerson = (id: string) =>
   withCache(['person', id], [tags.person(id), tags.people], async (db): Promise<PersonDetail | null> => {
-    const [person, emails, attendance, submissions, applications, chats, slack, organizations, audit, summary] =
+    const [person, emails, attendance, submissions, applications, chats, slack, audit] =
       await Promise.all([
         db.from('people').select('*').eq('id', id).maybeSingle(),
         db.from('person_emails').select('*').eq('person_id', id).order('is_primary', { ascending: false }),
@@ -103,9 +101,7 @@ export const getPerson = (id: string) =>
           .select('*, person:person_id(id,first_name,last_name), member:member_id(id,first_name,last_name)')
           .or(`person_id.eq.${id},member_id.eq.${id}`),
         db.from('slack_channel_activity').select('*, channel:slack_channels(*)').eq('person_id', id),
-        db.from('person_organizations').select('*').eq('person_id', id),
         db.from('field_changes').select('*').eq('row_id', id).order('created_at', { ascending: false }).limit(20),
-        db.from('person_event_summary').select('*').eq('person_id', id).maybeSingle(),
       ]);
     if (!person.data) return null;
     type ChatJoin = CoffeeChat & { person: Person; member: Person };
@@ -121,9 +117,7 @@ export const getPerson = (id: string) =>
         direction: r.member_id === id ? ('gave' as const) : ('received' as const),
       })),
       slack: (slack.data ?? []) as PersonDetail['slack'],
-      organizations: (organizations.data ?? []) as PersonOrganization[],
       audit: (audit.data ?? []) as FieldChange[],
-      summary: (summary.data ?? null) as PersonEventSummary | null,
     };
   });
 
@@ -143,9 +137,11 @@ export async function peopleDirectoryLive(): Promise<PeopleDirectoryRow[]> {
 
 /* ── Events ───────────────────────────────────────────────────────────── */
 
-export type EventListRow = EventRow & Omit<EventStats, 'event_id' | 'name' | 'event_date'> & {
+export interface EventListRow extends EventRow {
+  registered_count: number; checked_in_count: number;
+  walk_in_count: number; member_checkin_count: number;
   open_review_items: number;
-};
+}
 
 export const listEvents = () =>
   withCache(['events-list'], [tags.events], async (db): Promise<EventListRow[]> => {
@@ -165,9 +161,8 @@ type Join = EventAttendance & {
 
 export const getEvent = (id: string) =>
   withCache(['event', id], [tags.event(id), tags.events], async (db) => {
-    const [event, stats, attendees, imports] = await Promise.all([
-      db.from('events').select('*').eq('id', id).maybeSingle(),
-      db.from('event_stats').select('*').eq('event_id', id).maybeSingle(),
+    const [event, attendees, imports] = await Promise.all([
+      db.from('events_list').select('*').eq('id', id).maybeSingle(),
       fetchAll<Join>((f, t) => db.from('event_attendance')
         .select('*, person:people(id,first_name,last_name,is_v1_member,person_emails(email,is_primary))')
         .eq('event_id', id).order('id').range(f, t)),
@@ -175,8 +170,7 @@ export const getEvent = (id: string) =>
     ]);
     if (!event.data) return null;
     return {
-      event: event.data as EventRow,
-      stats: (stats.data ?? null) as EventStats | null,
+      event: event.data as EventListRow,
       attendees: attendees.map((r) => ({
         ...r,
         person: {
@@ -306,7 +300,8 @@ export const overview = () =>
     async (db) => {
       const [stats, checkins, slackBars, imports, upcoming] = await Promise.all([
         db.from('overview_stats').select('*').maybeSingle(),
-        db.from('event_stats').select('*').order('event_date'),
+        db.from('events_list').select('id,name,event_date,registered_count,checked_in_count')
+          .order('event_date'),
         db.from('slack_channel_stats').select('name,messages_30d')
           .order('messages_30d', { ascending: false }).limit(8),
         db.from('imports').select('*, event:events(name)').order('created_at', { ascending: false }).limit(5),
@@ -315,7 +310,8 @@ export const overview = () =>
       ]);
       return {
         stats: (stats.data ?? null) as OverviewStats | null,
-        checkins: (checkins.data ?? []) as EventStats[],
+        checkins: (checkins.data ?? []) as Pick<
+          EventListRow, 'id' | 'name' | 'event_date' | 'registered_count' | 'checked_in_count'>[],
         slackBars: (slackBars.data ?? []) as { name: string; messages_30d: number }[],
         imports: (imports.data ?? []) as (ImportRecord & { event: { name: string } | null })[],
         upcoming: (upcoming.data ?? []) as Pick<EventRow, 'id' | 'name' | 'event_date' | 'event_type'>[],

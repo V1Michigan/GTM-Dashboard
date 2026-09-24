@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Buildings, Coffee } from '@phosphor-icons/react/dist/ssr';
+import { Coffee } from '@phosphor-icons/react/dist/ssr';
 import { Empty, Section, Tag } from '@/components/ui/primitives';
 import { getPerson, peopleDirectory, type PersonDetail } from '@/lib/queries';
 import type { Json } from '@/lib/types';
@@ -23,7 +23,7 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
   const [detail, directory] = await Promise.all([getPerson(id), peopleDirectory()]);
   if (!detail) notFound();
 
-  const { person, emails, attendance, submissions, applications, chats, slack, organizations, audit } = detail;
+  const { person, emails, attendance, submissions, applications, chats, slack, audit } = detail;
   const name = [person.first_name, person.last_name].filter(Boolean).join(' ') || '(no name)';
   const events = [...attendance].sort((a, b) => b.event.event_date.localeCompare(a.event.event_date));
 
@@ -223,28 +223,6 @@ export default async function PersonPage({ params }: { params: Promise<{ id: str
             <div className={`text-[11px] ${MUTED}`}>
               Daily counts only. Message contents are never stored.
             </div>
-          </Section>
-
-          <Section title="Organizations">
-            {organizations.length === 0 ? (
-              <EmptyPanel>
-                <span className="flex items-center gap-2">
-                  <Buildings size={16} /> None recorded. Organization data arrives in a later version.
-                </span>
-              </EmptyPanel>
-            ) : (
-              <table className="table table-dense">
-                <tbody>
-                  {organizations.map((o) => (
-                    <tr key={o.id}>
-                      <td>{o.organization}</td>
-                      <td><Empty value={o.role} /></td>
-                      <td className="text-muted">{o.source}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
           </Section>
 
           <Section title="Audit log">

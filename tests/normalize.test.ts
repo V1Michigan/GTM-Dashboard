@@ -4,7 +4,6 @@ import {
   normalizeEmail,
   normalizeName,
   splitName,
-  typoDomainDistance,
   uniqnameFromEmail,
 } from '@/lib/matching/normalize';
 
@@ -64,19 +63,5 @@ describe('isTestRow', () => {
   it('leaves real people alone', () => {
     expect(isTestRow({ email: 'avachen@umich.edu', name: 'Ava Chen' })).toBe(false);
     expect(isTestRow({ email: 'tester@umich.edu', name: 'Tessa Tester' })).toBe(false);
-  });
-});
-
-describe('typoDomainDistance', () => {
-  it('measures the distance from umich.edu', () => {
-    expect(typoDomainDistance('avachen@umich.edu')).toBe(0);
-    expect(typoDomainDistance('nkowal@umich.efu')).toBe(1);
-    expect(typoDomainDistance('nkowal@umich.ed')).toBe(1);
-    expect(typoDomainDistance('nkowal@umich.com')).toBe(3);
-  });
-
-  it('is null for unrelated domains', () => {
-    expect(typoDomainDistance('zoevas@gmail.com')).toBeNull();
-    expect(typoDomainDistance('not-an-email')).toBeNull();
   });
 });

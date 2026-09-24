@@ -17,7 +17,6 @@ export const EXPORT_TABLES = {
   coffee_chats: ['id'],
   slack_channels: ['id'],
   slack_channel_activity: ['person_id', 'channel_id', 'activity_date'],
-  person_organizations: ['id'],
 } satisfies Record<string, string[]>;
 
 export type ExportTable = keyof typeof EXPORT_TABLES;
@@ -96,7 +95,7 @@ const personName = (p: Row) => [p.first_name, p.last_name].filter(Boolean).join(
  * genuinely wide and one-off; every dashboard count still comes from a view.
  */
 export async function buildPeopleWide(db: SupabaseClient): Promise<string> {
-  const [people, emails, events, attendance, activity, channels, apps, chats, orgs, summary] =
+  const [people, emails, events, attendance, activity, channels, apps, chats] =
     await Promise.all([
       all(db, 'people', ['id']),
       all(db, 'person_emails', ['id']),
@@ -106,8 +105,6 @@ export async function buildPeopleWide(db: SupabaseClient): Promise<string> {
       all(db, 'slack_channels', ['id']),
       all(db, 'product_studio_applications', ['id']),
       all(db, 'coffee_chats', ['id']),
-      all(db, 'person_organizations', ['id']),
-      all(db, 'person_event_summary', ['person_id']),
     ]);
 
   const byPerson = <T>(rows: Row[], value: (r: Row) => T) => {
@@ -131,11 +128,14 @@ export async function buildPeopleWide(db: SupabaseClient): Promise<string> {
   const slackChannels = byPerson(activity, (a) => channelName.get(a.channel_id as string) ?? (a.channel_id as string));
   const psApps = byPerson(apps, (a) => `${a.semester === 'fall' ? 'F' : 'W'}${a.year}:${a.round_reached}`);
   const chatMembers = byPerson(chats, (c) => names.get(c.member_id as string) ?? '');
-  const organizations = byPerson(orgs, (o) => o.organization as string);
-  const summaries = new Map(summary.map((s) => [s.person_id as string, s]));
 
   const state = new Map<string, string>();
+  const registered = new Map<string, number>();
+  const attended = new Map<string, number>();
+  const bump = (m: Map<string, number>, k: string) => m.set(k, (m.get(k) ?? 0) + 1);
   for (const a of attendance) {
+    if (a.registered) bump(registered, a.person_id as string);
+    if (a.checked_in) bump(attended, a.person_id as string);
     const value = a.registered && a.checked_in ? 'both' : a.checked_in ? 'attended' : a.registered ? 'registered' : 'none';
     state.set(`${a.person_id}|${a.event_id}`, value);
   }
@@ -144,22 +144,20 @@ export async function buildPeopleWide(db: SupabaseClient): Promise<string> {
     'person_id', 'first_name', 'last_name', 'primary_email', 'all_emails', 'uniqname',
     'grad_year', 'grad_term', 'major', 'gender', 'is_v1_member', 'member_since', 'in_slack',
     'slack_joined_at', 'slack_channels_active', 'events_registered', 'events_attended',
-    'ps_applications', 'coffee_chat_members', 'organizations',
+    'ps_applications', 'coffee_chat_members',
     ...events.map((e) => `evt_${e.event_date}_${slug(e.name as string)}`),
   ];
 
   let csv = csvRow(columns);
   for (const p of people) {
     const id = p.id as string;
-    const s = summaries.get(id);
     csv += csvRow([
       id, p.first_name, p.last_name, primary.get(id) ?? null, join(allEmails.get(id) ?? []),
       p.uniqname, p.grad_year, p.grad_term, p.major, p.gender, p.is_v1_member, p.member_since,
       p.slack_joined_at != null, p.slack_joined_at,
       join([...new Set(slackChannels.get(id) ?? [])]),
-      s?.events_registered ?? 0, s?.events_attended ?? 0,
+      registered.get(id) ?? 0, attended.get(id) ?? 0,
       join(psApps.get(id) ?? []), join([...new Set(chatMembers.get(id) ?? [])]),
-      join(organizations.get(id) ?? []),
       ...events.map((e) => state.get(`${id}|${e.id}`) ?? 'none'),
     ]);
   }

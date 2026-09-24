@@ -16,7 +16,6 @@ export const EXPORT_TABLES = [
   { table: 'coffee_chats', description: 'Member ↔ person chats' },
   { table: 'slack_channels', description: 'Channel metadata and bot membership' },
   { table: 'slack_channel_activity', description: 'Daily message counts per person and channel' },
-  { table: 'person_organizations', description: 'Empty in v1' },
 ] as const;
 
 /** Spec §7, in order. The per-event `evt_<date>_<slug>` columns follow these. */
@@ -24,7 +23,7 @@ export const PEOPLE_WIDE_COLUMNS = [
   'person_id', 'first_name', 'last_name', 'primary_email', 'all_emails', 'uniqname',
   'grad_year', 'grad_term', 'major', 'gender', 'is_v1_member', 'member_since', 'in_slack',
   'slack_joined_at', 'slack_channels_active', 'events_registered', 'events_attended',
-  'ps_applications', 'coffee_chat_members', 'organizations',
+  'ps_applications', 'coffee_chat_members',
 ] as const;
 
 export const csvHref = (table: string) => `/api/export/${table}.csv`;

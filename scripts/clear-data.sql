@@ -18,7 +18,6 @@ delete from coffee_chats;
 delete from product_studio_applications;
 delete from form_submissions;
 delete from event_attendance;
-delete from person_organizations;
 delete from person_emails;
 delete from events;
 delete from people;

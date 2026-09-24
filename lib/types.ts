@@ -55,11 +55,6 @@ export interface PersonEmail {
   created_at: string;
 }
 
-export interface PersonOrganization {
-  id: string; person_id: string; organization: string;
-  role: string | null; source: string; created_at: string;
-}
-
 export interface EventRow {
   id: string;
   name: string;
@@ -186,17 +181,6 @@ export interface WebhookInbox {
 }
 
 /* Views */
-export interface EventStats {
-  event_id: string; name: string; event_date: string;
-  registered_count: number; checked_in_count: number;
-  walk_in_count: number; member_checkin_count: number;
-}
-
-export interface PersonEventSummary {
-  person_id: string; events_registered: number; events_attended: number;
-  last_attended_at: string | null;
-}
-
 export interface PeopleDirectoryRow {
   id: string; first_name: string | null; last_name: string | null;
   primary_email: string | null; is_v1_member: boolean;

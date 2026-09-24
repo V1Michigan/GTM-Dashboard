@@ -21,10 +21,10 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   const detail = await getEvent(id);
   if (!detail) notFound();
 
-  const { event, stats, attendees, imports } = detail;
-  const registered = stats?.registered_count ?? 0;
-  const checkedIn = stats?.checked_in_count ?? 0;
-  const walkIns = stats?.walk_in_count ?? 0;
+  const { event, attendees, imports } = detail;
+  const registered = event.registered_count;
+  const checkedIn = event.checked_in_count;
+  const walkIns = event.walk_in_count;
   // Registered-and-checked-in is checkedIn minus walk-ins, so no-shows fall out of the view.
   const noShows = registered - (checkedIn - walkIns);
 
@@ -41,7 +41,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
         <StatCard label="Checked in" value={checkedIn} />
         <StatCard label="Walk-ins" value={walkIns} />
         <StatCard label="No-shows" value={noShows} />
-        <StatCard label="Member check-ins" value={stats?.member_checkin_count ?? 0} />
+        <StatCard label="Member check-ins" value={event.member_checkin_count} />
       </div>
 
       <div className="grid grid-cols-[1fr_340px] items-start gap-6">
