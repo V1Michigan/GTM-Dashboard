@@ -16,7 +16,7 @@ const Email = z.email().refine((e) => e.toLowerCase().endsWith('@umich.edu'), {
  * API, which needs the service key. It is guarded by requireAdmin() and touches
  * nothing but auth.users.
  *
- * Order matters. The allowlist trigger on auth.users (migration 0012) rejects
+ * Order matters. The allowlist trigger on auth.users (baseline migration) rejects
  * any address that is not already on app_users or attached to a V1 member, so
  * the app_users row has to exist first.
  */

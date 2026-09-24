@@ -69,8 +69,8 @@ an admin provisions each account in `/settings` and hands over a one-time
 password. Creating an auth user needs the Admin API, so `provisionUser()` is the
 one Server Action that touches the service-role client; it is guarded by
 `requireAdmin()` and writes nothing but `app_users` and `auth.users`. The access rule is unchanged and
-is still enforced where it always was: the `auth.users` trigger in migration
-0012 refuses any address that is not `@umich.edu` **and** either on `app_users`
+is still enforced where it always was: the `auth.users` trigger in the baseline
+migration refuses any address that is not `@umich.edu` **and** either on `app_users`
 or attached to a person with `is_v1_member = true`. Switching provider does not
 widen who can get in. Email confirmations are off, so no SMTP is required.
 

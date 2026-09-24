@@ -14,7 +14,7 @@ export interface Session {
  * The signed-in admin/member, or null.
  *
  * Reads the role from the JWT (stamped by the custom access token hook,
- * migration 0013) after verifying the signature locally against the cached
+ * baseline migration) after verifying the signature locally against the cached
  * JWKS — no call to the Auth server and no `app_users` query per render.
  * RLS still checks the live allowlist on every statement, so this is routing
  * and UI only, never the authorization decision.

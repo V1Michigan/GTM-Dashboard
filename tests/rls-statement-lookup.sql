@@ -96,7 +96,7 @@ reset role;
 update app_users set role = 'admin' where email = 'rls-test-admin@umich.edu';
 set local role authenticated;
 select set_config('request.jwt.claims', '{"email":"rls-test-admin@umich.edu","role":"authenticated"}', true);
--- This fails on 0012's direct calls and passes when the role lookup is an
+-- This fails on direct helper calls and passes when the role lookup is an
 -- InitPlan, so it tests the optimization rather than merely matching SQL text.
 do $$
 declare plan jsonb;

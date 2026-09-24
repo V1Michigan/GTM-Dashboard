@@ -66,7 +66,7 @@ enable_anonymous_sign_ins = false
 # `[auth.email] enable_signup = false` to try to achieve this — that disables the
 # email provider outright and refuses every LOGIN as well.
 #
-# The @umich.edu allowlist trigger on auth.users (migration 0012) backs this up.
+# The @umich.edu allowlist trigger on auth.users (baseline migration) backs this up.
 # Confirmations are off so a provisioned account can sign in without SMTP.
 [auth.email]
 enable_signup = true

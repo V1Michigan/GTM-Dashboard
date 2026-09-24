@@ -1,25 +1,8 @@
--- Run with psql as postgres against a LOCAL database with migrations 0001–0022
--- or later. Restore the old policies only inside this benchmark transaction.
--- Synthetic fixtures and the trial migration are rolled back, even on failure
--- when psql disconnects. Do not run a benchmark against production.
+-- Run with psql as postgres against a LOCAL migrated database. Synthetic
+-- fixtures are rolled back, even on failure when psql disconnects. Do not run a
+-- benchmark against production.
 \set ON_ERROR_STOP on
 begin;
-
-do $$
-declare target record;
-begin
-  for target in select schemaname, tablename from pg_policies
-    where schemaname = 'public' and policyname = 'admin_all'
-  loop
-    execute format(
-      'alter policy admin_all on %I.%I using (public.current_app_role() = ''admin'')
-       with check (public.current_app_role() = ''admin'')', target.schemaname, target.tablename);
-  end loop;
-end $$;
-alter policy member_select_own on public.coffee_chats using (member_id = public.current_person_id());
-alter policy member_insert_own on public.coffee_chats with check (member_id = public.current_person_id());
-alter policy member_delete_recent on public.coffee_chats
-  using (member_id = public.current_person_id() and created_at > now() - interval '24 hours');
 
 insert into app_users (email, role) values ('rls-benchmark@umich.edu', 'admin');
 insert into people (id, first_name, last_name, grad_year, is_v1_member, slack_joined_at)
@@ -69,24 +52,10 @@ end $$;
 
 set local role authenticated;
 select set_config('request.jwt.claims', '{"email":"rls-benchmark@umich.edu","role":"authenticated"}', true);
-select pg_temp.measure_rls('before');
+select pg_temp.measure_rls('current');
 reset role;
-
-\ir ../supabase/migrations/0023_rls_statement_lookup.sql
-
-set local role authenticated;
-select pg_temp.measure_rls('after');
-reset role;
-
-do $$ begin
-  assert not exists (
-    select from rls_results b join rls_results a using (query)
-    where b.stage = 'before' and a.stage = 'after' and b.result is distinct from a.result
-  ), 'Optimization changed a query result';
-end $$;
 
 select query,
-  round((percentile_cont(0.5) within group (order by milliseconds) filter (where stage = 'before'))::numeric, 3) as before_ms,
-  round((percentile_cont(0.5) within group (order by milliseconds) filter (where stage = 'after'))::numeric, 3) as after_ms
+  round((percentile_cont(0.5) within group (order by milliseconds))::numeric, 3) as median_ms
 from rls_timings group by query order by query;
 rollback;

@@ -1,7 +1,7 @@
 # Duplicate review rules
 
 Import previews and committed imports use the same matching rule (TypeScript
-and `match_person` in migration 0024). Exact email, Slack ID, and uniqname
+and `match_person` in the baseline migration). Exact email, Slack ID, and uniqname
 matches retain priority. If those identifiers point at different people, the
 existing conflict handling requires a human decision.
 
@@ -34,11 +34,6 @@ conflicting existing fields, invalid import rows, unmatched Slack users, and
 new coffee-chat contacts/member lookups. This change tightens duplicate
 suggestions; it does not remove those other workflows.
 
-Existing `review_items` contain saved candidate snapshots. Migration 0024 does
-not delete, dismiss, or replay them. Re-evaluating that backlog requires a
-separate backfill that also handles pending import rows; simply hiding or
-dismissing those rows can leave their attendance/form data unapplied.
-
 Run `pnpm test` for preview and fixture checks. After applying migrations to a
 local database, run the transactional SQL checks as postgres:
 
@@ -47,5 +42,5 @@ psql "$LOCAL_DATABASE_URL" -X -v ON_ERROR_STOP=1 -f tests/matching.sql
 ```
 
 The SQL checks run matching and actual import application as `authenticated`
-with admin RLS. Synthetic data is rolled back. Apply migration 0024 alongside
-the app release so preview and commit decisions agree.
+with admin RLS. Synthetic data is rolled back. Keep `match_person` and
+`lib/matching/matchPerson.ts` in sync so preview and commit decisions agree.

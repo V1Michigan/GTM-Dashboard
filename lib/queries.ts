@@ -29,7 +29,7 @@ export interface PersonListRow extends Person {
 }
 
 /**
- * One page of /people. Uncached on purpose: a page is 50 rows behind the 0022
+ * One page of /people. Uncached on purpose: a page is 50 rows behind the list
  * indexes, which costs less than the Netlify Blobs round trip `withCache` adds
  * — and every page/sort/filter combination would be its own cache entry.
  */
@@ -70,7 +70,7 @@ export async function peopleStats(): Promise<OverviewStats | null> {
   return (data ?? null) as OverviewStats | null;
 }
 
-/** Distinct grad years for the filter dropdown — ~10 rows from the 0022 view. */
+/** Distinct grad years for the filter dropdown — ~10 rows from people_grad_years. */
 export async function gradYears(): Promise<number[]> {
   const db = await createServerClient();
   const { data } = await db.from('people_grad_years').select('grad_year').order('grad_year');

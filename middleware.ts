@@ -31,7 +31,7 @@ export async function middleware(request: NextRequest) {
    * getUser(), which asks the Auth server on every request. It still refreshes
    * the session cookie when the token is close to expiring.
    *
-   * `app_role` is stamped on by the custom access token hook (migration 0013),
+   * `app_role` is stamped on by the custom access token hook (baseline migration),
    * which removes the second round trip this used to make to `app_users`.
    * The claim only decides ROUTING. Every query the page then runs is still
    * checked by RLS against the live allowlist, so a role that changed since the

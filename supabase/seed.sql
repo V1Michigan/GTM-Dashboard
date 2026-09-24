@@ -57,7 +57,7 @@ insert into people (id, first_name, last_name, uniqname, grad_year, grad_term, s
   ('11111111-0000-4000-8000-000000000038', 'Jordan', 'Lee', 'jordanle', 2028, 'winter', 'undergrad', 'Computer Science', null, false, null, null, null),
   ('11111111-0000-4000-8000-000000000039', 'Jordan', 'Lee', null, null, null, 'undergrad', null, null, false, null, null, null);
 
--- email_normalized is filled by the trigger in 0009.
+-- email_normalized is filled by a trigger.
 insert into person_emails (person_id, email, is_primary, source) values
   ('11111111-0000-4000-8000-000000000000', 'anguyen@umich.edu', true, 'manual_csv'),
   ('11111111-0000-4000-8000-000000000001', 'nokafor@umich.edu', true, 'manual_csv'),
