@@ -1,13 +1,12 @@
 'use client';
 import { useEffect, useMemo, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
 import { ArrowRight, CheckCircle } from '@phosphor-icons/react/dist/ssr';
 import { Combobox } from '@/components/ui/Combobox';
 import { KeyValues, PageHeader, Tag } from '@/components/ui/primitives';
 import { Seg } from '@/components/ui/Seg';
 import { fmtDateTime } from '@/lib/format';
 import type { Json, PeopleDirectoryRow, ReviewItem, ReviewKind } from '@/lib/types';
-import { createPeopleForNoMatch, resolveReviewItem, type ResolveInput } from './actions';
+import { createPeopleForNoMatch, finishReview, resolveReviewItem, type ResolveInput } from './actions';
 
 const KIND_LABEL: Record<ReviewKind, string> = {
   no_match: 'No match',
@@ -52,16 +51,18 @@ const shortName = (display: string) =>
   display.replace(/\s*<[^>]*>\s*$/, '').trim() || display;
 
 export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: PeopleDirectoryRow[] }) {
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [kind, setKind] = useState<ReviewKind | 'all'>('all');
   /*
-   * Resolved ids are held locally so the next item appears the instant the
-   * action returns. router.refresh() still runs, but the queue does not wait for
-   * the round trip — and because `remaining` is derived from the server list
-   * minus these ids, the refresh cannot double-count or resurrect an item.
+   * A click marks the item done and moves on at once; the decision is saved in
+   * the background. Next runs Server Actions from one client in order, so rapid
+   * clicks queue up one at a time — which is what keeps two "create" decisions
+   * for the same human from racing into duplicates. `remaining` is the server
+   * list minus these ids, so a refresh cannot double-count or resurrect an item.
    */
   const [done, setDone] = useState<Set<string>>(new Set());
+  const [inFlight, setInFlight] = useState(0);
+  const [dirty, setDirty] = useState(false);
   const [cursor, setCursor] = useState(0);
   const [picked, setPicked] = useState<Record<string, string>>({});
   const [searching, setSearching] = useState(false);
@@ -95,14 +96,35 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
 
   function resolve(input: ResolveInput) {
     setError(null);
-    startTransition(async () => {
-      const result = await resolveReviewItem(input);
-      if (!result.ok) { setError(result.error); return; }
-      setDone((prev) => new Set(prev).add(input.itemId));
-      setSearching(false);
-      router.refresh();
-    });
+    setSearching(false);
+    setDone((prev) => new Set(prev).add(input.itemId));
+    setInFlight((n) => n + 1);
+    setDirty(true);
+    resolveReviewItem(input)
+      .then((r) => (r.ok ? null : r.error), () => 'Could not reach the server. The item is back in the queue.')
+      .then((failure) => {
+        if (!failure) return;
+        setError(failure);
+        setDone((prev) => { const next = new Set(prev); next.delete(input.itemId); return next; });
+      })
+      .finally(() => setInFlight((n) => n - 1));
   }
+
+  // One cache refresh per burst of decisions, not per click. Queued after the
+  // pending saves, so it always sees them.
+  useEffect(() => {
+    if (inFlight > 0 || !dirty) return;
+    setDirty(false);
+    startTransition(() => finishReview());
+  }, [inFlight, dirty]);
+
+  // Closing the tab drops decisions that have not been sent yet.
+  useEffect(() => {
+    if (inFlight === 0) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [inFlight]);
 
   if (!item) {
     return (
@@ -142,7 +164,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
             onClick={() => startTransition(async () => {
               const result = await createPeopleForNoMatch();
               if (!result.ok) setError(result.error);
-              else { setDone(new Set(items.map((i) => i.id))); router.refresh(); }
+              else setDone(new Set(items.filter((i) => i.kind === 'no_match').map((i) => i.id)));
             })}
           >
             Create new person for all {counts.no_match} no-match items
@@ -168,7 +190,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
           />
         </div>
         <button
-          type="button" className="btn btn-ghost ml-auto text-[13px]" disabled={pending || remaining.length < 2}
+          type="button" className="btn btn-ghost ml-auto text-[13px]" disabled={remaining.length < 2}
           onClick={() => setCursor((c) => (c + 1) % remaining.length)}
         >
           Skip <ArrowRight size={14} />
@@ -192,7 +214,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
         </header>
 
         {item.kind === 'field_conflict' ? (
-          <FieldConflict item={item} pending={pending} onResolve={resolve} />
+          <FieldConflict item={item} onResolve={resolve} />
         ) : (
           <div className="grid" style={{ gridTemplateColumns: '1fr 1.25fr' }}>
             <div className="flex flex-col gap-3 border-r border-divider px-6 py-5">
@@ -255,7 +277,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
 
               <div className="mt-1 flex flex-wrap gap-2">
                 <button
-                  type="button" className="btn btn-primary" disabled={pending || !selected}
+                  type="button" className="btn btn-primary" disabled={!selected}
                   onClick={() => resolve({ itemId: item.id, action: 'link', personId: selected })}
                 >
                   {selectedLabel ? `Link to ${shortName(selectedLabel)}` : 'Link'}
@@ -267,14 +289,14 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   Link to other…
                 </button>
                 <button
-                  type="button" className="btn btn-secondary" disabled={pending}
+                  type="button" className="btn btn-secondary"
                   onClick={() => resolve({ itemId: item.id, action: 'create' })}
                 >
                   Create new person
                 </button>
                 <button
                   type="button" className="btn btn-secondary"
-                  disabled={pending || item.candidates.length < 2 || !selected}
+                  disabled={item.candidates.length < 2 || !selected}
                   onClick={() => resolve({
                     itemId: item.id, action: 'merge', personId: selected,
                     dropId: item.candidates.find((c) => c.person_id !== selected)?.person_id,
@@ -283,7 +305,7 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
                   Merge candidates
                 </button>
                 <button
-                  type="button" className="btn btn-ghost text-secondary" disabled={pending}
+                  type="button" className="btn btn-ghost text-secondary"
                   onClick={() => resolve({ itemId: item.id, action: 'dismiss' })}
                 >
                   Dismiss
@@ -306,8 +328,8 @@ export function ReviewQueue({ items, people }: { items: ReviewItem[]; people: Pe
 
 /** A binary choice needs no candidate list — just the two values, side by side. */
 function FieldConflict(
-  { item, pending, onResolve }:
-  { item: ReviewItem; pending: boolean; onResolve: (input: ResolveInput) => void },
+  { item, onResolve }:
+  { item: ReviewItem; onResolve: (input: ResolveInput) => void },
 ) {
   const field = str(item.payload.field) ?? 'field';
   const current = str(item.payload.current) ?? '—';
@@ -322,7 +344,7 @@ function FieldConflict(
               <span className="label-kicker">{label}</span>
               <span className="text-[15px]">{value}</span>
               <button
-                type="button" className="btn btn-secondary mt-1" disabled={pending}
+                type="button" className="btn btn-secondary mt-1"
                 onClick={() => onResolve({ itemId: item.id, action })}
               >
                 {action === 'field_keep' ? 'Keep this' : 'Use this'}
