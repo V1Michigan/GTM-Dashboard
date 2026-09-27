@@ -55,6 +55,9 @@ begin
   assert exists (select from person_emails where email = 'linked-review@umich.edu'
                    and person_id = '66666666-0000-4000-8000-000000000001'), 'link: email';
 
+  assert (select status from imports where id = '66666666-0000-4000-8000-0000000000a1') = 'needs_review',
+    'import closed while an item was still open';
+
   -- Slack create: name split, email attached
   v := resolve_review_item('66666666-0000-4000-8000-0000000000c4', 'create');
   assert (select (first_name, last_name, slack_user_id) = ('Mary Ann', 'Smith', 'UREVIEW1')
@@ -73,6 +76,14 @@ begin
   assert (select status from review_items where id = '66666666-0000-4000-8000-0000000000c6') = 'dismissed';
   assert create_people_for_no_match() = 1, 'bulk: wrong count';
   assert exists (select from person_emails where email = 'bulk-review@umich.edu'), 'bulk: person';
+  -- linking opened name conflicts; the import closes only when those do too
+  assert (select status from imports where id = '66666666-0000-4000-8000-0000000000a1') = 'needs_review',
+    'import closed with field conflicts still open';
+  perform resolve_review_item(rv.id, 'field_keep')
+     from review_items rv join import_rows r on r.id = rv.import_row_id
+    where r.import_id = '66666666-0000-4000-8000-0000000000a1' and rv.status = 'open';
+  assert (select status from imports where id = '66666666-0000-4000-8000-0000000000a1') = 'committed',
+    'import still needs review after its last item closed';
 
   -- a failure leaves nothing half-done
   begin
