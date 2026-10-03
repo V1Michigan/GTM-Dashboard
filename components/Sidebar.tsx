@@ -7,6 +7,7 @@ import {
   House, Users, CalendarBlank, UploadSimple, Warning, Coffee, SlackLogo, Gear, DownloadSimple,
 } from '@phosphor-icons/react/dist/ssr';
 import type { Icon } from '@phosphor-icons/react';
+import { syncAll } from '@/app/(dashboard)/actions';
 
 const ITEMS: { href: string; label: string; Icon: Icon; badge?: boolean }[] = [
   { href: '/', label: 'Overview', Icon: House },
@@ -63,6 +64,11 @@ export function Sidebar(
       <div className="mt-auto flex flex-col gap-1 border-t border-divider px-[10px] pt-3">
         <div className="text-[12.5px]">{email.split('@')[0]}</div>
         <div className="text-[11.5px] text-muted">{email} · {role}</div>
+        {role === 'admin' && (
+          <form action={syncAll}>
+            <button type="submit" className="mt-1 text-[12px] text-accent-text">Sync from database</button>
+          </form>
+        )}
         <form action="/auth/signout" method="post">
           <button type="submit" className="mt-1 text-[12px] text-accent-text">Sign out</button>
         </form>
